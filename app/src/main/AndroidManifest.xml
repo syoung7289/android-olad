@@ -57,7 +57,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.scyoung.pandora.PassParameterActivity" />
         </activity>
-
+        <activity
+            android:name=".ShowPopupMenu"
+            android:label="@string/title_activity_show_popup_menu"
+            android:parentActivityName=".SandboxActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.scyoung.pandora.SandboxActivity" />
+        </activity>
     </application>
 
 </manifest>

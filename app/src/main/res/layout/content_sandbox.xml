@@ -13,7 +13,7 @@
     tools:showIn="@layout/activity_sandbox">
 
     <Button
-        android:id="@+id/findImage"
+        android:id="@+id/sandbox_findImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
@@ -21,30 +21,39 @@
         android:onClick="findImage" />
 
     <Button
-        android:id="@+id/playSound"
+        android:id="@+id/sandbox_playSound"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/play_sound"
         android:onClick="playSound"
-        android:layout_below="@id/findImage" />
+        android:layout_below="@id/sandbox_findImage" />
 
     <Button
-        android:id="@+id/passParameter"
+        android:id="@+id/sandbox_passParameter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/title_activity_pass_parameter"
         android:onClick="openParameterActivityPane"
-        android:layout_below="@id/playSound" />
+        android:layout_below="@id/sandbox_playSound" />
 
     <Button
-        android:id="@+id/flushPreferences"
+        android:id="@+id/sandbox_showPopup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/title_activity_show_popup_menu"
+        android:onClick="openShowPopupPane"
+        android:layout_below="@id/sandbox_passParameter" />
+
+    <Button
+        android:id="@+id/sandbox_flushPreferences"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/title_activity_flush_preferences"
         android:onClick="flushPreferences"
-        android:layout_below="@id/passParameter" />
+        android:layout_below="@id/sandbox_showPopup" />
 
 </RelativeLayout>
