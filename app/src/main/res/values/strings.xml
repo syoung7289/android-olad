@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Pandora</string>
+    <string name="edit_message">Enter a Message</string>
+    <string name="param_to_pass">Enter a Parameter</string>
+    <string name="button_send">Send</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_display_message">My Message</string>
+    <string name="title_activity_play_sound">Play Sound</string>
+    <string name="title_activity_flush_preferences">Flush StoredPreferences</string>
+    <string name="button_find_image">Find Image</string>
+    <string name="find">Get Image</string>
+    <string name="replace">[REPLACE]</string>
+    <string name="play_sound">Play Sound</string>
+    <string name="title_activity_sandbox">Android Sandbox</string>
+    <string name="title_activity_find_image">Find an Image</string>
+    <string name="title_activity_pass_parameter">Pass Parameter</string>
+    <string name="title_activity_display_parameter">Display Parameter that was passed</string>
+    <string name="preference_file">pandora_pref</string>
+    <string name="no_image_key">NO_IMAGE_KEY</string>
+</resources>
