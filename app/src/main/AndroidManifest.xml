@@ -66,6 +66,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.scyoung.pandora.SandboxActivity" />
         </activity>
+        <activity
+            android:name=".ShowDynamicMenu"
+            android:label="@string/title_activity_show_dynamic_menu"
+            android:parentActivityName=".SandboxActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.scyoung.pandora.SandboxActivity" />
+        </activity>
     </application>
 
 </manifest>

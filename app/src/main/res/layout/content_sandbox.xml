@@ -48,12 +48,21 @@
         android:layout_below="@id/sandbox_passParameter" />
 
     <Button
+        android:id="@+id/sandbox_showDynamicPopup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/title_activity_show_dynamic_menu"
+        android:onClick="openShowDynamicPopupPane"
+        android:layout_below="@id/sandbox_showPopup" />
+
+    <Button
         android:id="@+id/sandbox_flushPreferences"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/title_activity_flush_preferences"
         android:onClick="flushPreferences"
-        android:layout_below="@id/sandbox_showPopup" />
+        android:layout_below="@id/sandbox_showDynamicPopup" />
 
 </RelativeLayout>

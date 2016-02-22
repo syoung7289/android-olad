@@ -64,7 +64,13 @@ public class SandboxActivity extends AppCompatActivity {
 
     public void openShowPopupPane(View view) {
         Intent intent = new Intent(this, ShowPopupMenu.class);
-        startActivity(intent);    }
+        startActivity(intent);
+    }
+
+    public void openShowDynamicPopupPane(View view) {
+        Intent intent = new Intent(this, ShowDynamicMenu.class);
+        startActivity(intent);
+    }
 
     /**
      * This will seed the preferences with the encoded no image for default button usage

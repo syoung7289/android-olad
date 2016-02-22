@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/image_action"
+        app:showAsAction="ifRoom|withText"
+        android:title="Image"
+        android:visible="true" />
+    <item
+        android:id="@+id/sound_action"
+        app:showAsAction="ifRoom|withText"
+        android:title="Sound"
+        android:visible="true" />
+    <item
+        android:id="@+id/remove_button_action"
+        app:showAsAction="ifRoom|withText"
+        android:title="Visibility"
+        android:visible="true" />
+    <item
+        android:id="@+id/up_vote_action"
+        app:showAsAction="ifRoom|withText"
+        android:title="UpVote"
+        android:visible="true" />
+    <item
+        android:id="@+id/down_vote_action"
+        app:showAsAction="ifRoom|withText"
+        android:title="DownVote"
+        android:visible="true" />
+
+
+</menu>
