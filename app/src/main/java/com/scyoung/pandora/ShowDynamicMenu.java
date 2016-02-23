@@ -76,37 +76,37 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
                     case D:
                         popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_add_image);
                         popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
-                        popup.getMenu().add(1, R.id.remove_button_action, 3, R.string.menu_title_remove_button);
-                        popup.getMenu().add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
                         popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
                         break;
                     case DI:
                         popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
                         popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
-                        popup.getMenu().add(1, R.id.remove_button_action, 3, R.string.menu_title_remove_button);
-                        popup.getMenu().add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
                         popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
                         break;
                     case DS:
                         popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_add_image);
                         popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
-                        popup.getMenu().add(1, R.id.remove_button_action, 3, R.string.menu_title_remove_button);
-                        popup.getMenu().add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
                         popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
                         break;
                     case DIS:
                         popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
                         popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
-                        popup.getMenu().add(1, R.id.remove_button_action, 3, R.string.menu_title_remove_button);
-                        popup.getMenu().add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
                         popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
                         break;
                     default:
                         break;
                 }
                 SELECTED_BUTTON_ID = button.getId();
-                popup.getMenu().getItem(4).setEnabled(viewButtonIndex < getLastVisibleIndex());    //not upper bounds
-                popup.getMenu().getItem(3).setEnabled(viewButtonIndex > 0);                         //not lower bounds
+                popup.getMenu().getItem(3).setEnabled(viewButtonIndex < getLastVisibleIndex());    //not upper bounds
+                popup.getMenu().getItem(2).setEnabled(viewButtonIndex > 0);                         //not lower bounds
                 popup.show();
             }
         });
@@ -127,24 +127,32 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
                 manageButtonRemoval(activeButton);
                 return true;
             case R.id.up_vote_action:
-                upVote(activeButton, SELECTED_BUTTON_ID);
+                upVote(activeButton);
                 return true;
             case R.id.down_vote_action:
-                downVote(SELECTED_BUTTON_ID);
+                downVote(activeButton);
                 return true;
             default:
                 return true;
         }
     }
 
-    private void downVote(int selected_button_id) {
-        for (int i=selected_button_id; i<viewButtons.length; i++) {
-            exchangeButtonContent(i, i+1);
+    private void downVote(Button selectedButton) {
+        for (int i=0; i<getLastVisibleIndex(); i++) {
+            if (selectedButton == viewButtons[i]) {
+                exchangeButtonContent(i, i + 1);
+                break;
+            }
         }
     }
 
-    private void upVote(Button activeButton, int selected_button_id) {
-
+    private void upVote(Button selectedButton) {
+        for (int i=0; i<=getLastVisibleIndex(); i++) {
+            if (selectedButton == viewButtons[i]) {
+                exchangeButtonContent(i, i -1);
+                break;
+            }
+        }
     }
 
     public void addButton(View view) {
@@ -262,7 +270,7 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
                 return i-1;      //previous index which would have passed the visibility test
             }
         }
-        return 0;
+        return viewButtons.length-1;
     }
 
 }
