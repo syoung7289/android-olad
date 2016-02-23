@@ -37,14 +37,13 @@ public class PlaySoundActivity extends AppCompatActivity {
         playSoundButton.setText("Playing...");
         MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.tada);
         mediaPlayer.setVolume(100, 100);
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer arg0) {
+                playSoundButton.setText(getResources().getString(R.string.play_sound));
+            }
+        });
         mediaPlayer.start();
-        playSoundButton.setText(getResources().getString(R.string.play_sound));
-
-//        mHandler.postDelayed(new Runnable() {
-//            public void run() {
-//                replaceText(playSoundButton);
-//            }
-//        }, 5000);
     }
 
     private void replaceText(Button button) {
