@@ -30,13 +30,22 @@
         android:layout_below="@id/sandbox_findImage" />
 
     <Button
+        android:id="@+id/sandbox_findSound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/find_sound"
+        android:onClick="findSound"
+        android:layout_below="@id/sandbox_playSound" />
+
+    <Button
         android:id="@+id/sandbox_passParameter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/title_activity_pass_parameter"
         android:onClick="openParameterActivityPane"
-        android:layout_below="@id/sandbox_playSound" />
+        android:layout_below="@id/sandbox_findSound" />
 
     <Button
         android:id="@+id/sandbox_showPopup"

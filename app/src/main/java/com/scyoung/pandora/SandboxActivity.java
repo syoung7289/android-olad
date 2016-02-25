@@ -46,6 +46,10 @@ public class SandboxActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void findSound(View view) {
+        Intent intent = new Intent(this, FindSoundActivity.class);
+        startActivity(intent);
+    }
     /**
      * Called when the user clicks the Find Image button
      */

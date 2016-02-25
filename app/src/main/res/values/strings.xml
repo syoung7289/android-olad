@@ -30,4 +30,6 @@
     <string name="button_text_image_sound">[Image]\n-------\n[Sound]</string>
     <string name="button_text_sound">[SOUND]</string>
     <string name="button_text_empty">Empty</string>
+    <string name="title_activity_find_sound">Find Sound File</string>
+    <string name="find_sound">Find Sound</string>
 </resources>

@@ -46,8 +46,4 @@ public class PlaySoundActivity extends AppCompatActivity {
         mediaPlayer.start();
     }
 
-    private void replaceText(Button button) {
-        button.setText(getResources().getString(R.string.play_sound));
-    }
-
 }

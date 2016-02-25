@@ -153,25 +153,6 @@ public class FindImageActivity extends AppCompatActivity {
                 }
         }
     }
-    public String getFilename(Uri uri)
-    {
-        String fileName = null;
-        Context context=getApplicationContext();
-        String scheme = uri.getScheme();
-        if (scheme.equals("file")) {
-            fileName = uri.getLastPathSegment();
-        }
-        else if (scheme.equals("content")) {
-            String[] proj = { MediaStore.Video.Media.TITLE };
-            Cursor cursor = context.getContentResolver().query(uri, proj, null, null, null);
-            if (cursor != null && cursor.getCount() != 0) {
-                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
-                cursor.moveToFirst();
-                fileName = cursor.getString(columnIndex);
-            }
-        }
-        return fileName;
-    }
 
     private String encodeBase64(Bitmap image) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
