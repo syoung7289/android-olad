@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 public class FindSoundActivity extends AppCompatActivity {
 
     private final int SELECT_AUDIO = 1;
@@ -53,16 +55,24 @@ public class FindSoundActivity extends AppCompatActivity {
         }
     }
 
-    private MediaPlayer prepareMediaPlayerForAudio(Uri audioUri) {
+    private void playAudioForButton(Uri audioUri, Button activeButton) {
         if (aMediaPlayer != null) {
             aMediaPlayer.reset();
             aMediaPlayer.release();
             aMediaPlayer = null;
         }
-        aMediaPlayer = MediaPlayer.create(this, audioUri);
-//        aMediaPlayer.setOnPreparedListener(aPreparedListener);
-//        aMediaPlayer.prepareAsync();
-        return aMediaPlayer;
+        try {
+            aMediaPlayer = new MediaPlayer();
+            aMediaPlayer.setDataSource(this, audioUri);
+            aMediaPlayer.setOnPreparedListener(aPreparedListener);
+            aMediaPlayer.setVolume(100, 100);
+            aMediaPlayer.setLooping(false);
+            aMediaPlayer.setOnCompletionListener(aCompletionListener);
+            CURRENTLY_PLAYING = activeButton;
+            aMediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void findSound(View view) {
@@ -79,12 +89,7 @@ public class FindSoundActivity extends AppCompatActivity {
         if (buttonSoundLocation != null) {
             playingButton.setText(R.string.audio_playing);
             Uri buttonSoundUri = Uri.parse(buttonSoundLocation);
-            prepareMediaPlayerForAudio(buttonSoundUri);
-            aMediaPlayer.setVolume(100, 100);
-            aMediaPlayer.setLooping(false);
-            aMediaPlayer.setOnCompletionListener(aCompletionListener);
-            CURRENTLY_PLAYING = playingButton;
-            aMediaPlayer.start();
+            playAudioForButton(buttonSoundUri, playingButton);
         }
     }
 
@@ -96,23 +101,16 @@ public class FindSoundActivity extends AppCompatActivity {
                     final Button findSoundButton = (Button) findViewById(R.id.findSound);
                     final Uri audioUri = soundReturnedIntent.getData();
                     findSoundButton.setText(R.string.audio_playing);
-                    prepareMediaPlayerForAudio(audioUri);
-                    if (aMediaPlayer != null) {
-                        aMediaPlayer.setVolume(100, 100);
-                        aMediaPlayer.setLooping(false);
-                        aMediaPlayer.setOnCompletionListener(aCompletionListener);
-                        CURRENTLY_PLAYING = findSoundButton;
-                        aMediaPlayer.start();
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString(INTENT_BUTTON_NAME, audioUri.toString());
-                        editor.commit();
-                        findSoundButton.setOnClickListener(new Button.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                playSound(v);
-                            }
-                        });
-                    }
+                    playAudioForButton(audioUri, findSoundButton);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(INTENT_BUTTON_NAME, audioUri.toString());
+                    editor.commit();
+                    findSoundButton.setOnClickListener(new Button.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            playSound(v);
+                        }
+                    });
                 }
         }
     }
