@@ -21,8 +21,10 @@ public class FindSoundActivity extends AppCompatActivity {
     private final int SELECT_AUDIO = 1;
     private String INTENT_BUTTON_NAME;
     private int INTENT_BUTTON_ID;
+    private Button CURRENTLY_PLAYING = null;
     private SharedPreferences prefs;
     private Resources res;
+    private static MediaPlayer aMediaPlayer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,18 @@ public class FindSoundActivity extends AppCompatActivity {
         }
     }
 
+    private MediaPlayer prepareMediaPlayerForAudio(Uri audioUri) {
+        if (aMediaPlayer != null) {
+            aMediaPlayer.reset();
+            aMediaPlayer.release();
+            aMediaPlayer = null;
+        }
+        aMediaPlayer = MediaPlayer.create(this, audioUri);
+//        aMediaPlayer.setOnPreparedListener(aPreparedListener);
+//        aMediaPlayer.prepareAsync();
+        return aMediaPlayer;
+    }
+
     public void findSound(View view) {
         Intent soundPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
         soundPickerIntent.setType("audio/*");
@@ -63,40 +77,32 @@ public class FindSoundActivity extends AppCompatActivity {
         final Button playingButton = (Button) view;
         final String buttonSoundLocation = prefs.getString(res.getResourceName(view.getId()), null);
         if (buttonSoundLocation != null) {
-            playingButton.setText("Playing...");
+            playingButton.setText(R.string.audio_playing);
             Uri buttonSoundUri = Uri.parse(buttonSoundLocation);
-            MediaPlayer pMediaPlayer = MediaPlayer.create(this, buttonSoundUri);
-            pMediaPlayer.setVolume(100, 100);
-            pMediaPlayer.setLooping(false);
-            pMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer arg0) {
-                    playingButton.setText(getResources().getString(R.string.play_sound));
-                }
-            });
-            pMediaPlayer.start();
+            prepareMediaPlayerForAudio(buttonSoundUri);
+            aMediaPlayer.setVolume(100, 100);
+            aMediaPlayer.setLooping(false);
+            aMediaPlayer.setOnCompletionListener(aCompletionListener);
+            CURRENTLY_PLAYING = playingButton;
+            aMediaPlayer.start();
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent soundReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, soundReturnedIntent);
-        switch (requestCode){
+        switch (requestCode) {
             case SELECT_AUDIO:
                 if (resultCode == RESULT_OK) {
                     final Button findSoundButton = (Button) findViewById(R.id.findSound);
                     final Uri audioUri = soundReturnedIntent.getData();
-                    findSoundButton.setText("Playing...");
-                    MediaPlayer sMediaPlayer = MediaPlayer.create(this, audioUri);
-                    if (sMediaPlayer != null) {
-                        sMediaPlayer.setVolume(100, 100);
-                        sMediaPlayer.setLooping(false);
-                        sMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                            @Override
-                            public void onCompletion(MediaPlayer arg0) {
-                                findSoundButton.setText(getResources().getString(R.string.play_sound));
-                            }
-                        });
-                        sMediaPlayer.start();
+                    findSoundButton.setText(R.string.audio_playing);
+                    prepareMediaPlayerForAudio(audioUri);
+                    if (aMediaPlayer != null) {
+                        aMediaPlayer.setVolume(100, 100);
+                        aMediaPlayer.setLooping(false);
+                        aMediaPlayer.setOnCompletionListener(aCompletionListener);
+                        CURRENTLY_PLAYING = findSoundButton;
+                        aMediaPlayer.start();
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString(INTENT_BUTTON_NAME, audioUri.toString());
                         editor.commit();
@@ -110,5 +116,22 @@ public class FindSoundActivity extends AppCompatActivity {
                 }
         }
     }
+
+    MediaPlayer.OnPreparedListener aPreparedListener = new MediaPlayer.OnPreparedListener() {
+        public void onPrepared(MediaPlayer mp) {
+            aMediaPlayer.start();
+        }
+    };
+
+    MediaPlayer.OnCompletionListener aCompletionListener = new MediaPlayer.OnCompletionListener() {
+        public void onCompletion(MediaPlayer arg0) {
+            if (CURRENTLY_PLAYING != null) {
+                CURRENTLY_PLAYING.setText(getResources().getString(R.string.play_sound));
+                CURRENTLY_PLAYING = null;
+            }
+            aMediaPlayer.release();
+            aMediaPlayer = null;
+        }
+    };
 
 }
