@@ -21,4 +21,9 @@
         <item name="android:textSize">10sp</item>
     </style>
 
+    <style name="ButtonMediumFontStyle">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ButtonMediumFontLight"></style>
 </resources>

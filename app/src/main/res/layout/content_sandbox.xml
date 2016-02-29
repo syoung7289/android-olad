@@ -18,16 +18,17 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/button_find_image"
+        android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="findImage" />
 
-    <Button
-        android:id="@+id/sandbox_playSound"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/play_sound"
-        android:onClick="playSound"
-        android:layout_below="@id/sandbox_findImage" />
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_playSound"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/play_sound"-->
+        <!--android:onClick="playSound"-->
+        <!--android:layout_below="@id/sandbox_findImage" />-->
 
     <Button
         android:id="@+id/sandbox_findSound"
@@ -35,26 +36,37 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/find_sound"
+        android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="findSound"
-        android:layout_below="@id/sandbox_playSound" />
+        android:layout_below="@id/sandbox_findImage" />
 
     <Button
-        android:id="@+id/sandbox_passParameter"
+        android:id="@+id/sandbox_recordSound"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="@string/title_activity_pass_parameter"
-        android:onClick="openParameterActivityPane"
+        android:text="@string/title_activity_record_sound"
+        android:textAppearance="@style/ButtonMediumFontStyle"
+        android:onClick="openRecordSound"
         android:layout_below="@id/sandbox_findSound" />
 
-    <Button
-        android:id="@+id/sandbox_showPopup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/title_activity_show_popup_menu"
-        android:onClick="openShowPopupPane"
-        android:layout_below="@id/sandbox_passParameter" />
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_passParameter"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/title_activity_pass_parameter"-->
+        <!--android:onClick="openParameterActivityPane"-->
+        <!--android:layout_below="@id/sandbox_findSound" />-->
+
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_showPopup"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/title_activity_show_popup_menu"-->
+        <!--android:onClick="openShowPopupPane"-->
+        <!--android:layout_below="@id/sandbox_passParameter" />-->
 
     <Button
         android:id="@+id/sandbox_showDynamicPopup"
@@ -62,8 +74,19 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/title_activity_show_dynamic_menu"
+        android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="openShowDynamicPopupPane"
-        android:layout_below="@id/sandbox_showPopup" />
+        android:layout_below="@id/sandbox_recordSound" />
+
+    <Button
+        android:id="@+id/sandbox_showGridView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/title_activity_grid_view"
+        android:textAppearance="@style/ButtonMediumFontStyle"
+        android:onClick="openGridViewPane"
+        android:layout_below="@id/sandbox_showDynamicPopup" />
 
     <Button
         android:id="@+id/sandbox_flushPreferences"
@@ -71,7 +94,8 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/title_activity_flush_preferences"
+        android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="flushPreferences"
-        android:layout_below="@id/sandbox_showDynamicPopup" />
+        android:layout_below="@id/sandbox_showGridView" />
 
 </RelativeLayout>

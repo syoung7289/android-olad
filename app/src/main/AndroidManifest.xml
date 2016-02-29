@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -78,6 +79,24 @@
         <activity
             android:name=".FindSoundActivity"
             android:label="@string/title_activity_find_sound"
+            android:parentActivityName=".SandboxActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.scyoung.pandora.SandboxActivity" />
+        </activity>
+        <activity
+            android:name=".RecordSoundActivity"
+            android:label="@string/title_activity_record_sound"
+            android:parentActivityName=".SandboxActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.scyoung.pandora.SandboxActivity" />
+        </activity>
+        <activity
+            android:name=".GridViewActivity"
+            android:label="@string/title_activity_grid_view"
             android:parentActivityName=".SandboxActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

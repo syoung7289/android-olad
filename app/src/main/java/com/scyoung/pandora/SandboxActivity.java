@@ -26,15 +26,6 @@ public class SandboxActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         initPreferences();
     }
 
@@ -50,6 +41,12 @@ public class SandboxActivity extends AppCompatActivity {
         Intent intent = new Intent(this, FindSoundActivity.class);
         startActivity(intent);
     }
+
+    public void openRecordSound(View view) {
+        Intent intent = new Intent(this, RecordSoundActivity.class);
+        startActivity(intent);
+    }
+
     /**
      * Called when the user clicks the Find Image button
      */
@@ -66,8 +63,8 @@ public class SandboxActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void openShowPopupPane(View view) {
-        Intent intent = new Intent(this, ShowPopupMenu.class);
+    public void openGridViewPane(View view) {
+        Intent intent = new Intent(this, GridViewActivity.class);
         startActivity(intent);
     }
 

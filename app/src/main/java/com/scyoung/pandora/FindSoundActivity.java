@@ -1,22 +1,22 @@
 package com.scyoung.pandora;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class FindSoundActivity extends AppCompatActivity {
 
@@ -102,8 +102,12 @@ public class FindSoundActivity extends AppCompatActivity {
                     final Uri audioUri = soundReturnedIntent.getData();
                     findSoundButton.setText(R.string.audio_playing);
                     playAudioForButton(audioUri, findSoundButton);
+                    File buttonAudioFile =copyFileToInternalStorage("findSound", audioUri);
+
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString(INTENT_BUTTON_NAME, audioUri.toString());
+                    if (buttonAudioFile != null) {
+                        editor.putString(INTENT_BUTTON_NAME, buttonAudioFile.toString());
+                    }
                     editor.commit();
                     findSoundButton.setOnClickListener(new Button.OnClickListener() {
                         @Override
@@ -131,5 +135,29 @@ public class FindSoundActivity extends AppCompatActivity {
             aMediaPlayer = null;
         }
     };
+
+    private File copyFileToInternalStorage(String outputFilename, Uri audioUri) {
+        FileOutputStream out;
+        File buttonAudioFile = null;
+        try {
+            buttonAudioFile = new File(this.getFilesDir(), outputFilename);
+            InputStream in = getContentResolver().openInputStream(audioUri);
+            out = new FileOutputStream(buttonAudioFile);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+
+            // write the output file
+            out.flush();
+            out.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return buttonAudioFile;
+    }
 
 }

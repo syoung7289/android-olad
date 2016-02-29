@@ -33,4 +33,8 @@
     <string name="title_activity_find_sound">Find Sound File</string>
     <string name="find_sound">Find Sound</string>
     <string name="audio_playing">Playing...</string>
+    <string name="title_activity_record_sound">Record Sound</string>
+    <string name="record_sound">Record\nSound</string>
+    <string name="button_finished_recording">Press\nagain\nwhen\nfinished</string>
+    <string name="title_activity_grid_view">Grid View Test</string>
 </resources>
