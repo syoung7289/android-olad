@@ -2,24 +2,22 @@ package com.scyoung.pandora;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.PopupMenu;
-import android.widget.Toast;
+import android.widget.RelativeLayout;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
+public class ShowDynamicMenu extends AppCompatActivity {
 
     Button[] viewButtons = new Button[6];
     private enum ButtonState {D, DI, DS, DIS};
     private int SELECTED_BUTTON_ID;
+    RelativeLayout container;
+    int margin = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +27,7 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        container = (RelativeLayout) findViewById(R.id.dynamic_menu_container);
         buildButtons();
     }
 
@@ -53,59 +52,77 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
         viewButtons[5].setTag(ButtonState.D);
 
         for (int i=0; i<viewButtons.length; i++) {
-            setOnClickListener(viewButtons[i], i);
+            registerForContextMenu(viewButtons[i]);
         }
     }
 
-    private void setOnClickListener(final Button button, final int viewButtonIndex) {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(ShowDynamicMenu.this, button);
-                popup.setOnMenuItemClickListener(ShowDynamicMenu.this);
-                switch ((ButtonState)button.getTag()) {
-                    case D:
-                        popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_add_image);
-                        popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
-                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
-                        popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
-                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
-                        break;
-                    case DI:
-                        popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
-                        popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
-                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
-                        popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
-                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
-                        break;
-                    case DS:
-                        popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_add_image);
-                        popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
-                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
-                        popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
-                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
-                        break;
-                    case DIS:
-                        popup.getMenu().add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
-                        popup.getMenu().add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
-                        popup.getMenu().add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
-                        popup.getMenu().add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
-                        popup.getMenu().add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
-                        break;
-                    default:
-                        break;
-                }
-                SELECTED_BUTTON_ID = button.getId();
-                popup.getMenu().getItem(3).setEnabled(viewButtonIndex < getLastVisibleIndex());    //not upper bounds
-                popup.getMenu().getItem(2).setEnabled(viewButtonIndex > 0);                         //not lower bounds
-                popup.show();
-            }
-        });
+    private void redrawButtons() {
+        int dimension = getButtonDimension();
+        for (int i=0; i<=getLastVisibleIndex(); i++) {
+            Log.d("SDM", "button index: " + i);
+            Log.d("SDM", "dimension: " + dimension);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) viewButtons[i].getLayoutParams();
+            params.width = dimension;
+            params.height = dimension;
+            params.rightMargin = margin;
+            viewButtons[i].setLayoutParams(params);
+        }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && viewButtons[0].getWidth() == 0) {
+            Log.d("SDM", "hasFocus: " + hasFocus);
+            redrawButtons();
+        }
     }
 
 
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        switch ((ButtonState) v.getTag()) {
+            case D:
+                menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
+                menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
+                menu.add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
+                menu.add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                menu.add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
+                break;
+            case DI:
+                menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
+                menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
+                menu.add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
+                menu.add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                menu.add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
+                break;
+            case DS:
+                menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
+                menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
+                menu.add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
+                menu.add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                menu.add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
+                break;
+            case DIS:
+                menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
+                menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
+                menu.add(1, R.id.up_vote_action, 3, R.string.menu_title_up_vote);
+                menu.add(1, R.id.down_vote_action, 4, R.string.menu_title_down_vote);
+                menu.add(1, R.id.remove_button_action, 5, R.string.menu_title_remove_button);
+                break;
+            default:
+                break;
+        }
+        SELECTED_BUTTON_ID = v.getId();
+
+        int viewButtonIndex = getButtonIndex(SELECTED_BUTTON_ID);
+        menu.getItem(3).setEnabled(viewButtonIndex < getLastVisibleIndex());    //not upper bounds
+        menu.getItem(2).setEnabled(viewButtonIndex > 0);                        //not lower bounds
+        menu.getItem(4).setEnabled(getLastVisibleIndex() > 0);                  //not lower bounds
+    }
+
+
+    public boolean onContextItemSelected(MenuItem item) {
         Button activeButton = (Button) findViewById(SELECTED_BUTTON_ID);
         switch (item.getItemId()) {
             case R.id.image_action:
@@ -140,7 +157,7 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
     private void upVote(Button selectedButton) {
         for (int i=0; i<=getLastVisibleIndex(); i++) {
             if (selectedButton == viewButtons[i]) {
-                exchangeButtonContent(i, i -1);
+                exchangeButtonContent(i, i - 1);
                 break;
             }
         }
@@ -151,6 +168,7 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
             if (viewButtons[i].getVisibility() == View.GONE) {
                 enableButton(viewButtons[i]);
                 setButtonEnablePlusUI((Button) findViewById(R.id.addButton), !buttonSetFull());
+                redrawButtons();
                 break;
             }
         }
@@ -201,6 +219,7 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
                 replaceButtonContent(i, i+1);
             }
         }
+        redrawButtons();
     }
 
     private void replaceButtonContent(int fromIndex, int toIndex) {
@@ -212,7 +231,7 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
         else if (fromIndex >= 0 && fromIndex < viewButtons.length) {
             disableButton(viewButtons[fromIndex]);
         }
-        setButtonEnablePlusUI((Button)findViewById(R.id.addButton), !buttonSetFull());
+        setButtonEnablePlusUI((Button) findViewById(R.id.addButton), !buttonSetFull());
     }
 
     private void exchangeButtonContent(int index1, int index2) {
@@ -229,7 +248,6 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
             viewButtons[index2].setVisibility(tmpVis);
             viewButtons[index2].setTag(tmpTag);
             viewButtons[index2].setText(tmpText);
-
         }
     }
 
@@ -248,10 +266,10 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
     private void setButtonEnablePlusUI(Button button, boolean enabled) {
         button.setEnabled(enabled);
         if (!enabled) {
-            button.setBackgroundColor(Color.GRAY);
+            button.setTextColor(Color.GRAY);
         }
         else {
-            button.setBackgroundColor(Color.parseColor("#FF060078"));
+            button.setTextColor(Color.WHITE);
         }
     }
 
@@ -262,6 +280,64 @@ public class ShowDynamicMenu extends AppCompatActivity implements PopupMenu.OnMe
             }
         }
         return viewButtons.length-1;
+    }
+
+    private int getButtonDimension() {
+        int width = container.getWidth();
+        int height = container.getHeight();
+        int lvi = getLastVisibleIndex();
+        int numColumns = getNumColumns(lvi);
+        int numRows = getNumRows(lvi);
+        int vFreeSpace = getVerticalFreeSpace(height, numRows);
+        int hFreeSpace = getHorizontalFreeSpace(width, numColumns);
+        return Math.min(vFreeSpace / numRows, hFreeSpace / numColumns);
+    }
+
+    private int getHorizontalFreeSpace(int containerWidth, int numColumns) {
+        Log.d("SDM", "containerWidth: " + containerWidth);
+        Log.d("SDM", "numColumns: " + numColumns);
+        int cPadding = (numColumns + 1) * margin;
+        Log.d("SDM", "cPadding: " + cPadding);
+        return containerWidth - cPadding;
+    }
+
+    private int getVerticalFreeSpace(int containerHeight, int numRows) {
+        Log.d("SDM", "containerHeight: " + containerHeight);
+        Log.d("SDM", "numRows: " + numRows);
+        int rPadding = (numRows + 1) * margin;
+        Log.d("SDM", "rPadding: " + rPadding);
+        return containerHeight - rPadding;
+    }
+
+    private int getNumRows(int currentIndex) {
+        if (currentIndex > 2) {
+            return 2;
+        }
+        else {
+            return 1;
+        }
+    }
+
+    private int getNumColumns(int currentIndex) {
+        switch (currentIndex) {
+            case 0:
+                return 1;
+            case 1:
+                return 2;
+            default:
+                return 3;
+        }
+    }
+
+    private int getButtonIndex(int selected_button_id) {
+        int index = 0;
+        for (int i=0; i<viewButtons.length; i++) {
+            if (viewButtons[i].getId() == selected_button_id) {
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
 
 }

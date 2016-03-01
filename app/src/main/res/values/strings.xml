@@ -36,5 +36,5 @@
     <string name="title_activity_record_sound">Record Sound</string>
     <string name="record_sound">Record\nSound</string>
     <string name="button_finished_recording">Press\nagain\nwhen\nfinished</string>
-    <string name="title_activity_grid_view">Grid View Test</string>
+    <string name="title_activity_linear_layout">Linear Layout Testing</string>
 </resources>

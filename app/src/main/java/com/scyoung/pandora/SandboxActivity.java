@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -63,8 +61,8 @@ public class SandboxActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void openGridViewPane(View view) {
-        Intent intent = new Intent(this, GridViewActivity.class);
+    public void openLinearLayoutPane(View view) {
+        Intent intent = new Intent(this, LinearLayoutActivity.class);
         startActivity(intent);
     }
 

@@ -95,8 +95,8 @@
                 android:value="com.scyoung.pandora.SandboxActivity" />
         </activity>
         <activity
-            android:name=".GridViewActivity"
-            android:label="@string/title_activity_grid_view"
+            android:name=".LinearLayoutActivity"
+            android:label="@string/title_activity_linear_layout"
             android:parentActivityName=".SandboxActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

@@ -79,13 +79,13 @@
         android:layout_below="@id/sandbox_recordSound" />
 
     <Button
-        android:id="@+id/sandbox_showGridView"
+        android:id="@+id/sandbox_showLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="@string/title_activity_grid_view"
+        android:text="@string/title_activity_linear_layout"
         android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="openGridViewPane"
+        android:onClick="openLinearLayoutPane"
         android:layout_below="@id/sandbox_showDynamicPopup" />
 
     <Button
@@ -96,6 +96,6 @@
         android:text="@string/title_activity_flush_preferences"
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="flushPreferences"
-        android:layout_below="@id/sandbox_showGridView" />
+        android:layout_below="@id/sandbox_showLinearLayout" />
 
 </RelativeLayout>
