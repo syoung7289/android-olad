@@ -6,25 +6,18 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,8 +27,12 @@ public class LargeImageActivity extends AppCompatActivity {
     private final int SELECT_PHOTO = 1;
     private SharedPreferences prefs;
     private Resources res;
-    private String INTENT_BUTTON_NAME;
-    private int INTENT_BUTTON_ID;
+    private String CURRENT_BUTTON_ABSOLUTE_NAME;
+    private String CURRENT_BUTTON_NAME = "name_to_change";
+    private int CURRENT_BUTTON_ID;
+    private ImageButton CURRENT_BUTTON = null;
+    RelativeLayout container;
+    int margin = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +40,11 @@ public class LargeImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_large_image);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         prefs = getSharedPreferences(getString(R.string.preference_file), MODE_PRIVATE);
         res = getResources();
+        container = (RelativeLayout) findViewById(R.id.large_image_container);
         prepareButtons();
     }
 
@@ -56,7 +54,9 @@ public class LargeImageActivity extends AppCompatActivity {
             ImageButton activityButton = (ImageButton) button;
             String replaceImageKey = res.getResourceName(button.getId());
             boolean isUserSelected = prefs.getString(replaceImageKey, null) != null;
-            String encodedImage = prefs.getString(replaceImageKey, (prefs.getString(getString(R.string.no_image_key), null)));
+            String imageLocation = prefs.getString(replaceImageKey, (prefs.getString(getString(R.string.no_image_uri_key), null)));
+            Uri imageUri = Uri.parse(imageLocation);
+
             if (isUserSelected) {
                 activityButton.setOnClickListener(new Button.OnClickListener() {
                     @Override
@@ -66,7 +66,6 @@ public class LargeImageActivity extends AppCompatActivity {
                 });
             }
             else {
-//                activityButton.setText(R.string.replace);
                 activityButton.setOnClickListener(new Button.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -74,17 +73,10 @@ public class LargeImageActivity extends AppCompatActivity {
                     }
                 });
             }
-            if (encodedImage != null) {
-                activityButton.setImageBitmap(decodeBase64(encodedImage));
+            if (imageLocation != null) {
+                activityButton.setImageBitmap(getBitmap(imageUri));
                 activityButton.setBackgroundColor(Color.TRANSPARENT);
-//                setBackground(activityButton, new BitmapDrawable(getResources(), decodeBase64(encodedImage)));
             }
-            button.setOnLongClickListener(new Button.OnLongClickListener() {
-                public boolean onLongClick(View v) {
-                    longClick(v);
-                    return true;
-                }
-            });
         }
     }
 
@@ -109,9 +101,8 @@ public class LargeImageActivity extends AppCompatActivity {
      */
     public void findImage(View view) {
         Intent imagePickerIntent = new Intent(Intent.ACTION_PICK);
+        setAsCurrentButton((ImageButton)view);
         imagePickerIntent.setType("image/*");
-        INTENT_BUTTON_ID = view.getId();
-        INTENT_BUTTON_NAME = res.getResourceName(INTENT_BUTTON_ID);
         startActivityForResult(imagePickerIntent, SELECT_PHOTO);
     }
 
@@ -122,7 +113,6 @@ public class LargeImageActivity extends AppCompatActivity {
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {
-
             final int halfHeight = height / 2;
             final int halfWidth = width / 2;
 
@@ -133,16 +123,7 @@ public class LargeImageActivity extends AppCompatActivity {
                 inSampleSize *= 2;
             }
         }
-
         return inSampleSize;
-    }
-
-    public void findImageArchive(View view) {
-        Intent imagePickerIntent = new Intent(Intent.ACTION_PICK);
-        imagePickerIntent.setType("image/*");
-        INTENT_BUTTON_ID = R.id.replaceImage;
-        INTENT_BUTTON_NAME = res.getResourceName(INTENT_BUTTON_ID);
-        startActivityForResult(imagePickerIntent, SELECT_PHOTO);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
@@ -151,38 +132,48 @@ public class LargeImageActivity extends AppCompatActivity {
             case SELECT_PHOTO:
                 if (resultCode == RESULT_OK) {
                     final Uri imageUri = imageReturnedIntent.getData();
-                    Bitmap selectedImage = decodeUri(imageUri);
+                    Bitmap selectedImage = getScaledBitmap(imageUri);
+                    if (selectedImage != null) {
+                        File internalFile = saveBitmapToInternalStorage(CURRENT_BUTTON_NAME, selectedImage);
+                        if (internalFile != null) {
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(CURRENT_BUTTON_ABSOLUTE_NAME, internalFile.toString());
+                            editor.commit();
 
-                    if (decodeUri(imageUri) != null) {
-                        ImageButton replaceButton = (ImageButton) findViewById(INTENT_BUTTON_ID);
-                        replaceButton.setImageBitmap(selectedImage);
-                        replaceButton.setBackgroundColor(Color.TRANSPARENT);
-                        Log.d("LIA", "PaddingBottom: " + replaceButton.getPaddingBottom());
-                        Log.d("LIA", "PaddingTop: " + replaceButton.getPaddingTop());
-                        Log.d("LIA", "PaddingRight: " + replaceButton.getPaddingRight());
-                        Log.d("LIA", "PaddingLeft: " + replaceButton.getPaddingLeft());
-                        replaceButton.setOnClickListener(new Button.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                shortClick(v);
-                            }
-                        });
-//                        SharedPreferences.Editor editor = prefs.edit();
-//                        editor.putString(INTENT_BUTTON_NAME, encodeBase64(selectedImage));
-//                        editor.commit();
+                            ImageButton replaceButton = (ImageButton) findViewById(CURRENT_BUTTON_ID);
+                            replaceButton.setImageBitmap(selectedImage);
+                            replaceButton.setBackgroundColor(Color.TRANSPARENT);
+                            replaceButton.setOnClickListener(new Button.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    shortClick(v);
+                                }
+                            });
+                        }
                     }
                 }
         }
     }
 
-    private String encodeBase64(Bitmap image) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] b = stream.toByteArray();
-        return Base64.encodeToString(b, Base64.DEFAULT);
+    private Bitmap getBitmap(Uri imageUri) {
+        Bitmap ret = null;
+        try {
+            File f = new File(imageUri.getPath());
+            if (f.exists()) {
+                Log.d("decodeUri", f.getAbsolutePath());
+                ret = BitmapFactory.decodeFile(f.getAbsolutePath());
+            }
+            else {
+                Log.d("LIA:decodeUri", "File not found: " + imageUri.getPath());
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
-    private Bitmap decodeUri(Uri uri) {
+    private Bitmap getScaledBitmap(Uri uri) {
         Bitmap ret;
         try {
             InputStream imageStream = getContentResolver().openInputStream(uri);
@@ -191,37 +182,23 @@ public class LargeImageActivity extends AppCompatActivity {
             BitmapFactory.decodeStream(imageStream, null, options);
             Log.d("LIA", "imageHeight is: " + options.outHeight);
             Log.d("LIA", "imageWidth is: " + options.outWidth);
-            Log.d("LIA", "imageType is: " + options.outMimeType);
             imageStream.close();
 
-            options.inSampleSize = calculateInSampleSize(options, 850, 850);
+            int buttonLength = getButtonDimension(2, 1);
+            options.inSampleSize = calculateInSampleSize(options, buttonLength, buttonLength);
             options.inJustDecodeBounds = false;
             imageStream = getContentResolver().openInputStream(uri);
             ret = BitmapFactory.decodeStream(imageStream, null, options);
-             Log.d("LIA", "imageHeight is: " + options.outHeight);
+            Log.d("LIA", "imageHeight is: " + ret.getHeight());
             Log.d("LIA", "imageWidth is: " + ret.getWidth());
-            Log.d("LIA", "imageType is: " + options.outMimeType);
             Log.d("LIA", "image in bytes: " + ret.getByteCount());
             imageStream.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             ret = null;
         }
         return ret;
-    }
-
-    private Bitmap decodeBase64(String encodedImage) {
-        byte[] decodeByte = Base64.decode(encodedImage, 0);
-        return BitmapFactory.decodeByteArray(decodeByte, 0, decodeByte.length);
-    }
-
-    public void setBackground(Button button, BitmapDrawable drawable) {
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            button.setBackgroundDrawable(drawable);
-        } else {
-            button.setBackground(drawable);
-        }
     }
 
     public void shortClick(View v) {
@@ -231,8 +208,50 @@ public class LargeImageActivity extends AppCompatActivity {
         v.setLayoutParams(params);
     }
 
-    public void longClick(View v) {
-        Toast.makeText(this, "Show Dialog requesting button edit", Toast.LENGTH_LONG).show();
+    private int getButtonDimension(int numColumns, int numRows) {
+        int width = container.getWidth();
+        int height = container.getHeight();
+        int vFreeSpace = getVerticalFreeSpace(height, numRows);
+        int hFreeSpace = getHorizontalFreeSpace(width, numColumns);
+        return Math.min(vFreeSpace / numRows, hFreeSpace / numColumns);
+    }
+
+    private int getHorizontalFreeSpace(int containerWidth, int numColumns) {
+        Log.d("SDM", "containerWidth: " + containerWidth);
+        Log.d("SDM", "numColumns: " + numColumns);
+        int cPadding = (numColumns + 1) * margin;
+        Log.d("SDM", "cPadding: " + cPadding);
+        return containerWidth - cPadding;
+    }
+
+    private int getVerticalFreeSpace(int containerHeight, int numRows) {
+        Log.d("SDM", "containerHeight: " + containerHeight);
+        Log.d("SDM", "numRows: " + numRows);
+        int rPadding = (numRows + 1) * margin;
+        Log.d("SDM", "rPadding: " + rPadding);
+        return containerHeight - rPadding;
+    }
+
+    private File saveBitmapToInternalStorage(String outputFilename, Bitmap in) {
+        FileOutputStream out;
+        File buttonResourceFile = null;
+        try {
+            buttonResourceFile = new File(this.getFilesDir(), outputFilename);
+            out = new FileOutputStream(buttonResourceFile);
+            in.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return buttonResourceFile;
+    }
+
+    public void setAsCurrentButton(ImageButton currentButton) {
+        CURRENT_BUTTON = currentButton;
+        CURRENT_BUTTON_ID = CURRENT_BUTTON.getId();
+        CURRENT_BUTTON_ABSOLUTE_NAME = res.getResourceName(CURRENT_BUTTON_ID);
+        CURRENT_BUTTON_NAME = res.getResourceEntryName(CURRENT_BUTTON_ID);
     }
 
 }

@@ -11,6 +11,9 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 public class SandboxActivity extends AppCompatActivity {
@@ -81,39 +84,70 @@ public class SandboxActivity extends AppCompatActivity {
      */
     private void initPreferences() {
         prefs = getSharedPreferences(getString(R.string.preference_file), MODE_PRIVATE);
-        if (prefs.getString(getString(R.string.no_image_key), null) == null) {
+        SharedPreferences.Editor editor;
 
+        //write no image pic to preferences as encoded string
+        if (prefs.getString(getString(R.string.no_image_key), null) == null) {
             Bitmap image = BitmapFactory.decodeResource(getResources(), R.drawable.noimage_large);
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             image.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] b = stream.toByteArray();
             String imageEncoded = Base64.encodeToString(b, Base64.DEFAULT);
 
-            SharedPreferences.Editor editor = prefs.edit();
+            editor = prefs.edit();
             editor.putString(getString(R.string.no_image_key), imageEncoded);
             editor.commit();
         }
-        else {
-            Map<String, ?> allEntries = prefs.getAll();
-            for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-                Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
+
+        // write no image pic to internal storage and set in preferences with new filename
+        if (prefs.getString(getString(R.string.no_image_uri_key), null) == null) {
+            String fileName = getString(R.string.no_image_uri_key);
+            Bitmap image = BitmapFactory.decodeResource(getResources(), R.drawable.noimage_large);
+            File newInternalFile = writeBitmapToInternalStorage(fileName, image);
+            if (newInternalFile != null) {
+                editor = prefs.edit();
+                editor.putString(fileName, newInternalFile.toString());
+                editor.commit();
             }
+        }
+
+        Map<String, ?> allEntries = prefs.getAll();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
         }
     }
 
     public void flushPreferences(View view) {
-        Map<String, ?> allEntries = prefs.getAll();
+//        Map<String, ?> allEntries = prefs.getAll();
         SharedPreferences.Editor editor = prefs.edit();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            if (entry.getKey() != getString(R.string.no_image_key)) {
-                editor.remove(entry.getKey());
-            }
-        }
+        editor.clear();
+//        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+//            if (entry.getKey() != getString(R.string.no_image_key) && entry.getKey() != getString(R.string.no_image_uri_key)) {
+//                editor.remove(entry.getKey());
+//            }
+//        }
         editor.commit();
         Log.d("Flushed Preferences: ", "complete");
-        allEntries = prefs.getAll();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
+        initPreferences();
+//        allEntries = prefs.getAll();
+//        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+//            Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
+//        }
+    }
+
+    private File writeBitmapToInternalStorage(String outputFilename, Bitmap bitmap) {
+        FileOutputStream out;
+        File buttonResourceFile = null;
+        try {
+            buttonResourceFile = new File(this.getFilesDir(), outputFilename);
+            out = new FileOutputStream(buttonResourceFile);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
         }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return buttonResourceFile;
     }
 }
