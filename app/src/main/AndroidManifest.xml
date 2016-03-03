@@ -103,6 +103,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.scyoung.pandora.SandboxActivity" />
         </activity>
+        <activity
+            android:name=".LargeImageActivity"
+            android:label="@string/title_activity_large_image"
+            android:parentActivityName=".SandboxActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.scyoung.pandora.SandboxActivity" />
+        </activity>
     </application>
 
 </manifest>

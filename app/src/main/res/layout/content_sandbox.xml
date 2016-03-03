@@ -21,6 +21,17 @@
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="findImage" />
 
+    <Button
+        android:id="@+id/sandbox_largeImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/title_activity_large_image"
+        android:textAppearance="@style/ButtonMediumFontStyle"
+        android:onClick="loadLargeImage"
+        android:layout_below="@id/sandbox_findImage" />
+
+
     <!--<Button-->
         <!--android:id="@+id/sandbox_playSound"-->
         <!--android:layout_width="match_parent"-->
@@ -38,7 +49,7 @@
         android:text="@string/find_sound"
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="findSound"
-        android:layout_below="@id/sandbox_findImage" />
+        android:layout_below="@id/sandbox_largeImage" />
 
     <Button
         android:id="@+id/sandbox_recordSound"

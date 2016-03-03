@@ -40,6 +40,11 @@ public class SandboxActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void loadLargeImage(View view) {
+        Intent intent = new Intent(this, LargeImageActivity.class);
+        startActivity(intent);
+    }
+
     public void openRecordSound(View view) {
         Intent intent = new Intent(this, RecordSoundActivity.class);
         startActivity(intent);
@@ -78,7 +83,7 @@ public class SandboxActivity extends AppCompatActivity {
         prefs = getSharedPreferences(getString(R.string.preference_file), MODE_PRIVATE);
         if (prefs.getString(getString(R.string.no_image_key), null) == null) {
 
-            Bitmap image = BitmapFactory.decodeResource(getResources(), R.drawable.noimage);
+            Bitmap image = BitmapFactory.decodeResource(getResources(), R.drawable.noimage_large);
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             image.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] b = stream.toByteArray();
