@@ -11,6 +11,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -23,15 +24,25 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CombinedActivity extends AppCompatActivity {
 
     ImageButton[] viewButtons = new ImageButton[6];
     private final int SELECT_PHOTO = 1;
     private final int SELECT_AUDIO = 2;
+    private final int DEFAULT = 0;
+    private final int DEFAULT_IMAGE = 1;
+    private final int DEFAULT_AUDIO = 2;
+    private final int DEFAULT_IMAGE_AUDIO = 3;
+    private final String IMAGE_TYPE = "_IMAGE";
+    private final String AUDIO_TYPE = "_AUDIO";
     private SharedPreferences prefs;
     private Resources res;
     private static MediaPlayer aMediaPlayer = null;
@@ -67,17 +78,18 @@ public class CombinedActivity extends AppCompatActivity {
         initButtonArray();
 
         for (int i = 0; i < viewButtons.length; i++) {
-            String replaceImageKey = res.getResourceName(viewButtons[i].getId());
+            String buttonName = res.getResourceName(viewButtons[i].getId());
+            String replaceImageKey = buttonName + IMAGE_TYPE;
             boolean isImageSelected = prefs.getString(replaceImageKey, null) != null;
             String imageLocation = prefs.getString(replaceImageKey, (prefs.getString(getString(R.string.no_image_uri_key), null)));
             Uri imageUri = Uri.parse(imageLocation);
             if (isImageSelected) {
                 viewButtons[i].setOnClickListener(buttonSelectedClickListener);
                 viewButtons[i].setVisibility(View.VISIBLE);
-                viewButtons[i].setTag(ButtonState.DI);
-                boolean isAudioSelected = prefs.getString(replaceImageKey + "_audio", null) != null;
+                viewButtons[i].setTag(DEFAULT_IMAGE);
+                boolean isAudioSelected = prefs.getString(buttonName + AUDIO_TYPE, null) != null;
                 if (isAudioSelected) {
-                    viewButtons[i].setTag(ButtonState.DIS);
+                    viewButtons[i].setTag(DEFAULT_IMAGE_AUDIO);
                 }
             }
             else {
@@ -93,21 +105,21 @@ public class CombinedActivity extends AppCompatActivity {
 
     private void initButtonArray() {
         viewButtons[0] = (ImageButton) findViewById(R.id.combinedButton0);
-        viewButtons[0].setTag(ButtonState.D);
+        viewButtons[0].setTag(DEFAULT);
         viewButtons[1] = (ImageButton) findViewById(R.id.combinedButton1);
-        viewButtons[1].setTag(ButtonState.D);
+        viewButtons[1].setTag(DEFAULT);
         viewButtons[2] = (ImageButton) findViewById(R.id.combinedButton2);
-        viewButtons[2].setTag(ButtonState.D);
+        viewButtons[2].setTag(DEFAULT);
         viewButtons[2].setVisibility(View.GONE);
         viewButtons[3] = (ImageButton) findViewById(R.id.combinedButton3);
         viewButtons[3].setVisibility(View.GONE);
-        viewButtons[3].setTag(ButtonState.D);
+        viewButtons[3].setTag(DEFAULT);
         viewButtons[4] = (ImageButton) findViewById(R.id.combinedButton4);
         viewButtons[4].setVisibility(View.GONE);
-        viewButtons[4].setTag(ButtonState.D);
+        viewButtons[4].setTag(DEFAULT);
         viewButtons[5] = (ImageButton) findViewById(R.id.combinedButton5);
         viewButtons[5].setVisibility(View.GONE);
-        viewButtons[5].setTag(ButtonState.D);
+        viewButtons[5].setTag(DEFAULT);
     }
 
     @Override
@@ -138,7 +150,7 @@ public class CombinedActivity extends AppCompatActivity {
      */
     public void buttonSelected(View view) {
         final ImageButton playingButton = (ImageButton) view;
-        final String buttonSoundLocation = prefs.getString((res.getResourceName(view.getId())+"_audio"), null);
+        final String buttonSoundLocation = prefs.getString((res.getResourceName(view.getId())+AUDIO_TYPE), null);
         if (buttonSoundLocation != null) {
             Uri buttonSoundUri = Uri.parse(buttonSoundLocation);
             playAudioForButton(buttonSoundUri, playingButton);
@@ -147,7 +159,7 @@ public class CombinedActivity extends AppCompatActivity {
 
     public void findImage(View v) {
         Intent imagePickerIntent = new Intent(Intent.ACTION_PICK);
-        setAsCurrentButton((ImageButton) v);
+        setAsCurrentButton((ImageButton) v, IMAGE_TYPE);
         imagePickerIntent.setType("image/*");
         startActivityForResult(imagePickerIntent, SELECT_PHOTO);
     }
@@ -155,7 +167,7 @@ public class CombinedActivity extends AppCompatActivity {
     private void findSound(View view) {
         Intent soundPickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
         soundPickerIntent.setType("audio/*");
-        setAsCurrentButton((ImageButton) view);
+        setAsCurrentButton((ImageButton) view, AUDIO_TYPE);
         startActivityForResult(soundPickerIntent, SELECT_AUDIO);
     }
 
@@ -176,6 +188,7 @@ public class CombinedActivity extends AppCompatActivity {
                             CURRENT_BUTTON.setImageBitmap(selectedImage);
                             CURRENT_BUTTON.setBackgroundColor(Color.TRANSPARENT);
                             CURRENT_BUTTON.setOnClickListener(buttonSelectedClickListener);
+                            addButtonAttribute(CURRENT_BUTTON, SELECT_PHOTO);
                             registerForContextMenu(CURRENT_BUTTON);
                         }
                     }
@@ -184,15 +197,16 @@ public class CombinedActivity extends AppCompatActivity {
             case SELECT_AUDIO:
                 if (resultCode == RESULT_OK) {
                     final Uri audioUri = returnedIntent.getData();
-                    File buttonAudioFile = saveAudioToInternalStorage(CURRENT_BUTTON_NAME+"_audio", audioUri);
+                    File buttonAudioFile = saveAudioToInternalStorage(CURRENT_BUTTON_NAME, audioUri);
                     if (buttonAudioFile.exists()) {
                         playAudioForButton(audioUri, CURRENT_BUTTON);
 
                         SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString(CURRENT_BUTTON_ABSOLUTE_NAME + "_audio", buttonAudioFile.toString());
+                        editor.putString(CURRENT_BUTTON_ABSOLUTE_NAME, buttonAudioFile.toString());
                         editor.commit();
 
                         CURRENT_BUTTON.setOnClickListener(buttonSelectedClickListener);
+                        addButtonAttribute(CURRENT_BUTTON, SELECT_AUDIO);
                     }
                 }
                 break;
@@ -207,9 +221,9 @@ public class CombinedActivity extends AppCompatActivity {
                 && index2 >= 0
                 && index2 < viewButtons.length) {
             int tmpVis = viewButtons[index1].getVisibility();
-            ButtonState tmpTag = (ButtonState)viewButtons[index1].getTag();
+            int tmpTag = (int)viewButtons[index1].getTag();
             Bitmap tmpImg = ((BitmapDrawable)viewButtons[index1].getDrawable()).getBitmap();
-            viewButtons[index1].setOnClickListener(determineClickListener((ButtonState)viewButtons[index2].getTag()));
+            viewButtons[index1].setOnClickListener(determineClickListener((int)viewButtons[index2].getTag()));
             viewButtons[index1].setVisibility(viewButtons[index2].getVisibility());
             viewButtons[index1].setTag(viewButtons[index2].getTag());
             viewButtons[index1].setImageBitmap(((BitmapDrawable) viewButtons[index2].getDrawable()).getBitmap());
@@ -217,12 +231,55 @@ public class CombinedActivity extends AppCompatActivity {
             viewButtons[index2].setVisibility(tmpVis);
             viewButtons[index2].setTag(tmpTag);
             viewButtons[index2].setImageBitmap(tmpImg);
+            exchangeFileNames(viewButtons[index1], viewButtons[index2]);
         }
+    }
+
+    private void exchangeFileNames(ImageButton button1, ImageButton button2) {
+        int button1Id = button1.getId();
+        int button2Id = button2.getId();
+        String absName1 = res.getResourceName(button1Id);
+        String absName2 = res.getResourceName(button2Id);
+
+        // get existing keys
+        String imageKey1 = absName1 + IMAGE_TYPE;
+        String imageKey2 = absName2 + IMAGE_TYPE;
+        String audioKey1 = absName1 + AUDIO_TYPE;
+        String audioKey2 = absName2 + AUDIO_TYPE;
+
+        // get existing values
+        String imageValue1 = prefs.getString(imageKey1, null);
+        String imageValue2 = prefs.getString(imageKey2, null);
+        String audioValue1 = prefs.getString(audioKey1, null);
+        String audioValue2 = prefs.getString(audioKey2, null);
+
+        // remove all keys from SharedPreferences
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(imageKey1);
+        editor.remove(imageKey2);
+        editor.remove(audioKey1);
+        editor.remove(audioKey2);
+
+        // switch key value pairs if they existed
+        if (imageValue1 != null) {
+            editor.putString(imageKey2, imageValue1);
+        }
+        if (imageValue2 != null) {
+            editor.putString(imageKey1, imageValue2);
+        }
+        if (audioValue1 != null) {
+            editor.putString(audioKey2, audioValue1);
+        }
+        if (audioValue2 != null) {
+            editor.putString(audioKey1, audioValue2);
+        }
+
+        editor.commit();
     }
 
     private void replaceButtonContent(int fromIndex, int toIndex) {
         if (toIndex < viewButtons.length) {
-            ButtonState toIndexTag = (ButtonState)viewButtons[toIndex].getTag();
+            int toIndexTag = (int)viewButtons[toIndex].getTag();
             viewButtons[fromIndex].setOnClickListener(determineClickListener(toIndexTag));
             viewButtons[fromIndex].setTag(toIndexTag);
             viewButtons[fromIndex].setImageBitmap(((BitmapDrawable) viewButtons[toIndex].getDrawable()).getBitmap());
@@ -233,13 +290,14 @@ public class CombinedActivity extends AppCompatActivity {
         }
         setButtonEnablePlusUI((Button) findViewById(R.id.addButton), !buttonSetFull());
     }
+
     private void enableButton(ImageButton button) {
-        button.setTag(ButtonState.D);
+        button.setTag(DEFAULT);
         button.setVisibility(View.VISIBLE);
     }
 
     private void disableButton(ImageButton button) {
-        button.setTag(ButtonState.D);
+        button.setTag(DEFAULT);
         button.setVisibility(View.GONE);
     }
 
@@ -264,16 +322,18 @@ public class CombinedActivity extends AppCompatActivity {
      */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        switch ((ButtonState) v.getTag()) {
-            case D:
+        switch ((int) v.getTag()) {
+            case DEFAULT:
                 menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
                 menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
                 menu.add(1, R.id.record_action, 3, R.string.menu_title_record_sound);
                 menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
                 menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
                 menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
+                menu.getItem(1).setVisible(false);
+                menu.getItem(2).setVisible(false);
                 break;
-            case DI:
+            case DEFAULT_IMAGE:
                 menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
                 menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
                 menu.add(1, R.id.record_action, 3, R.string.menu_title_record_sound);
@@ -281,7 +341,7 @@ public class CombinedActivity extends AppCompatActivity {
                 menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
                 menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
                 break;
-            case DS:
+            case DEFAULT_AUDIO:
                 menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
                 menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
                 menu.add(1, R.id.record_action, 3, R.string.menu_title_replace_recording);
@@ -289,7 +349,7 @@ public class CombinedActivity extends AppCompatActivity {
                 menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
                 menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
                 break;
-            case DIS:
+            case DEFAULT_IMAGE_AUDIO:
                 menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
                 menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
                 menu.add(1, R.id.record_action, 3, R.string.menu_title_replace_recording);
@@ -367,9 +427,11 @@ public class CombinedActivity extends AppCompatActivity {
 
     private void manageButtonRemoval(ImageButton button) {
         boolean matched = false;
+        int buttonID = button.getId();
         for (int i=0; i<viewButtons.length; i++) {
-            if (viewButtons[i].getId() == button.getId()) {
+            if (viewButtons[i].getId() == buttonID) {
                 matched = true;
+                deleteFilesAssociatedWithButton(buttonID);
                 replaceButtonContent(i, i+1);
             }
             else if (matched && viewButtons[i].getVisibility() != View.GONE) {
@@ -391,9 +453,9 @@ public class CombinedActivity extends AppCompatActivity {
     }
 
     private void manageRecording(ImageButton activeButton) {
-        setAsCurrentButton(activeButton);
+        setAsCurrentButton(activeButton, AUDIO_TYPE);
 
-        CURRENT_BUTTON_OUTPUT_FILE = this.getFilesDir() + "/" + CURRENT_BUTTON_NAME;
+        CURRENT_BUTTON_OUTPUT_FILE = this.getFilesDir() + "/" + CURRENT_BUTTON_NAME + getDateString();
         myAudioRecorder = new MediaRecorder();
         myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -484,6 +546,7 @@ public class CombinedActivity extends AppCompatActivity {
     private File saveBitmapToInternalStorage(String outputFilename, Bitmap in) {
         FileOutputStream out;
         File buttonResourceFile = null;
+        outputFilename += getDateString();
         try {
             buttonResourceFile = new File(this.getFilesDir(), outputFilename);
             out = new FileOutputStream(buttonResourceFile);
@@ -504,6 +567,7 @@ public class CombinedActivity extends AppCompatActivity {
     private File saveAudioToInternalStorage(String outputFilename, Uri audioUri) {
         FileOutputStream out;
         File buttonAudioFile = null;
+        outputFilename += getDateString();
         try {
             buttonAudioFile = new File(this.getFilesDir(), outputFilename);
             InputStream in = getContentResolver().openInputStream(audioUri);
@@ -538,7 +602,7 @@ public class CombinedActivity extends AppCompatActivity {
             aMediaPlayer.setVolume(100, 100);
             aMediaPlayer.setLooping(false);
             aMediaPlayer.setOnCompletionListener(aCompletionListener);
-            setAsCurrentButton(activeButton);
+            setAsCurrentButton(activeButton, AUDIO_TYPE);
             aMediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
@@ -603,11 +667,11 @@ public class CombinedActivity extends AppCompatActivity {
         }
     }
 
-    public void setAsCurrentButton(ImageButton currentButton) {
+    public void setAsCurrentButton(ImageButton currentButton, String mediaType) {
         CURRENT_BUTTON = currentButton;
         CURRENT_BUTTON_ID = CURRENT_BUTTON.getId();
-        CURRENT_BUTTON_ABSOLUTE_NAME = res.getResourceName(CURRENT_BUTTON_ID);
-        CURRENT_BUTTON_NAME = res.getResourceEntryName(CURRENT_BUTTON_ID);
+        CURRENT_BUTTON_ABSOLUTE_NAME = res.getResourceName(CURRENT_BUTTON_ID) + mediaType;
+        CURRENT_BUTTON_NAME = "combinedButton" + mediaType;
     }
 
     private int getButtonIndex(int selected_button_id) {
@@ -619,6 +683,22 @@ public class CombinedActivity extends AppCompatActivity {
             }
         }
         return index;
+    }
+
+    private void addButtonAttribute(ImageButton button, int button_attribute) {
+        if (button_attribute == SELECT_PHOTO && !hasImageAttribute(button) ||
+                button_attribute == SELECT_AUDIO && !hasAudioAttribute(button)) {
+            button.setTag(((int) button.getTag()) + button_attribute);
+        }
+    }
+
+    private boolean hasAudioAttribute(ImageButton button) {
+        return (int)button.getTag() >= DEFAULT_AUDIO;
+    }
+
+    private boolean hasImageAttribute(ImageButton button) {
+        int tag = (int)button.getTag();
+        return tag == DEFAULT_IMAGE_AUDIO || tag == DEFAULT_IMAGE;
     }
 
 /***** END: Button Utils */
@@ -649,17 +729,16 @@ public class CombinedActivity extends AppCompatActivity {
             File newRecording = new File(CURRENT_BUTTON_OUTPUT_FILE);
             if (newRecording != null) {
                 SharedPreferences.Editor editor = prefs.edit();
-                editor.putString(CURRENT_BUTTON_ABSOLUTE_NAME+"_audio", newRecording.toString());
+                editor.putString(CURRENT_BUTTON_ABSOLUTE_NAME, newRecording.toString());
                 editor.commit();
-//                addButtonState()
-                CURRENT_BUTTON.setTag(ButtonState.);
+                addButtonAttribute(CURRENT_BUTTON, SELECT_AUDIO);
                 CURRENT_BUTTON.setOnClickListener(buttonSelectedClickListener);
             }
         }
     };
 
-    private ImageButton.OnClickListener determineClickListener(ButtonState tmpTag) {
-        if (tmpTag == ButtonState.D) {
+    private ImageButton.OnClickListener determineClickListener(int tmpTag) {
+        if (tmpTag == DEFAULT) {
             return findImageClickListener;
         }
         else {
@@ -681,4 +760,36 @@ public class CombinedActivity extends AppCompatActivity {
     };
 
 /***** END: Listeners */
+
+    private String getDateString() {
+        Date date = new Date();
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        return dateFormatter.format(date);
+    }
+
+
+    private void deleteFilesAssociatedWithButton(int buttonID) {
+        String imageKey = res.getResourceName(buttonID) + IMAGE_TYPE;
+        String audioKey = res.getResourceName(buttonID) + AUDIO_TYPE;
+        String imageFileName = prefs.getString(imageKey, null);
+        String audioFileName = prefs.getString(audioKey, null);
+        if (imageFileName != null) {
+            try {
+                File imageFile = new File(imageFileName);
+                imageFile.delete();
+            }
+            catch (Exception e) {
+                // didn't exist keep going
+            }
+        }
+        if (audioFileName != null) {
+            try {
+                File audioFile = new File(audioFileName);
+                audioFile.delete();
+            }
+            catch (Exception e) {
+                // didn't exist keep going
+            }
+        }
+    }
 }
