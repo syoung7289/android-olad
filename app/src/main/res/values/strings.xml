@@ -20,13 +20,15 @@
     <string name="no_image_uri_key">NO_IMAGE_URI_KEY</string>
     <string name="title_activity_show_popup_menu">Explore Popup Menus</string>
     <string name="title_activity_show_dynamic_menu">Explore Dynamic Menus</string>
-    <string name="menu_title_add_sound">Add Sound</string>
-    <string name="menu_title_replace_sound">Replace Sound</string>
+    <string name="menu_title_add_sound">Add Sound from Media</string>
+    <string name="menu_title_replace_sound">Replace Sound with Media</string>
     <string name="menu_title_add_image">Add Image</string>
     <string name="menu_title_replace_image">Replace Image</string>
     <string name="menu_title_remove_button">Remove Button</string>
     <string name="menu_title_up_vote">Up Vote</string>
     <string name="menu_title_down_vote">Down Vote</string>
+    <string name="menu_title_record_sound">Record Sound</string>
+    <string name="menu_title_replace_recording">Replace Sound with Recording</string>
     <string name="button_text_image">[IMAGE]</string>
     <string name="button_text_image_sound">[Image]\n-------\n[Sound]</string>
     <string name="button_text_sound">[SOUND]</string>
@@ -39,4 +41,5 @@
     <string name="button_finished_recording">Press\nagain\nwhen\nfinished</string>
     <string name="title_activity_linear_layout">Linear Layout Testing</string>
     <string name="title_activity_large_image">Load Large Image</string>
+    <string name="title_activity_combined">Put it all together</string>
 </resources>

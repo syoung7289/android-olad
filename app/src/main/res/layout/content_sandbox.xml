@@ -13,13 +13,32 @@
     tools:showIn="@layout/activity_sandbox">
 
     <Button
+        android:id="@+id/sandbox_showCombined"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/title_activity_combined"
+        android:textAppearance="@style/ButtonMediumFontStyle"
+        android:onClick="openCombined"/>
+
+    <Button
+        android:id="@+id/sandbox_flushPreferences"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/title_activity_flush_preferences"
+        android:textAppearance="@style/ButtonMediumFontStyle"
+        android:onClick="flushPreferences"
+        android:layout_below="@id/sandbox_showCombined" />
+    <Button
         android:id="@+id/sandbox_findImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:text="@string/button_find_image"
         android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="findImage" />
+        android:onClick="findImage"
+        android:layout_below="@id/sandbox_flushPreferences"  />
 
     <Button
         android:id="@+id/sandbox_largeImage"
@@ -88,25 +107,5 @@
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="openShowDynamicPopupPane"
         android:layout_below="@id/sandbox_recordSound" />
-
-    <Button
-        android:id="@+id/sandbox_showLinearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/title_activity_linear_layout"
-        android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="openLinearLayoutPane"
-        android:layout_below="@id/sandbox_showDynamicPopup" />
-
-    <Button
-        android:id="@+id/sandbox_flushPreferences"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/title_activity_flush_preferences"
-        android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="flushPreferences"
-        android:layout_below="@id/sandbox_showLinearLayout" />
 
 </RelativeLayout>

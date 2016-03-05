@@ -53,6 +53,11 @@ public class SandboxActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void openCombined(View view) {
+        Intent intent = new Intent(this, CombinedActivity.class);
+        startActivity(intent);
+    }
+
     /**
      * Called when the user clicks the Find Image button
      */

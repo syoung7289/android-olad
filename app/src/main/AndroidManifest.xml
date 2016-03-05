@@ -112,6 +112,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.scyoung.pandora.SandboxActivity" />
         </activity>
+        <activity
+            android:name=".CombinedActivity"
+            android:label="@string/title_activity_combined"
+            android:parentActivityName=".SandboxActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.scyoung.pandora.SandboxActivity" />
+        </activity>
     </application>
 
 </manifest>

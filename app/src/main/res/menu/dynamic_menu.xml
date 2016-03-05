@@ -13,6 +13,11 @@
         android:title="Sound"
         android:visible="true" />
     <item
+        android:id="@+id/record_action"
+        app:showAsAction="ifRoom|withText"
+        android:title="Recording"
+        android:visible="true" />
+    <item
         android:id="@+id/remove_button_action"
         app:showAsAction="ifRoom|withText"
         android:title="Visibility"
