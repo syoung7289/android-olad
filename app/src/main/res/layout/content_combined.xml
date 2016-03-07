@@ -25,6 +25,17 @@
         android:adjustViewBounds="true"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="5dp"/>
+        <ImageView
+            android:id="@+id/combinedButton0_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@id/combinedButton0"
+            android:layout_alignRight="@id/combinedButton0"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:cropToPadding="true" />
     <ImageButton
         android:id="@+id/combinedButton1"
         android:layout_width="0dp"
@@ -37,6 +48,17 @@
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
+        <ImageView
+            android:id="@+id/combinedButton1_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@id/combinedButton0"
+            android:layout_alignRight="@id/combinedButton0"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:cropToPadding="true" />
     <ImageButton
         android:id="@+id/combinedButton2"
         android:layout_width="0dp"
@@ -49,6 +71,17 @@
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
+        <ImageView
+            android:id="@+id/combinedButton2_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@id/combinedButton0"
+            android:layout_alignRight="@id/combinedButton0"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:cropToPadding="true" />
     <ImageButton
         android:id="@+id/combinedButton3"
         android:layout_width="0dp"
@@ -60,6 +93,17 @@
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
+        <ImageView
+            android:id="@+id/combinedButton3_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@id/combinedButton0"
+            android:layout_alignRight="@id/combinedButton0"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:cropToPadding="true" />
     <ImageButton
         android:id="@+id/combinedButton4"
         android:layout_width="0dp"
@@ -71,6 +115,17 @@
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
+        <ImageView
+            android:id="@+id/combinedButton4_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@id/combinedButton0"
+            android:layout_alignRight="@id/combinedButton0"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:cropToPadding="true" />
     <ImageButton
         android:id="@+id/combinedButton5"
         android:layout_width="00dp"
@@ -82,5 +137,16 @@
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
+        <ImageView
+            android:id="@+id/combinedButton5_indicator"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@id/combinedButton0"
+            android:layout_alignRight="@id/combinedButton0"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:cropToPadding="true" />
 
 </RelativeLayout>

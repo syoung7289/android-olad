@@ -6,7 +6,9 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -17,9 +19,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -60,6 +64,8 @@ public class CombinedActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        int rotation = this.getWindow().getWindowManager().getDefaultDisplay().getRotation();
+        Log.d("CA", "onCreate started: " + ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) ? "LANDSCAPE" : "PORTRAIT"));
         setContentView(R.layout.activity_combined);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,6 +75,7 @@ public class CombinedActivity extends AppCompatActivity {
         res = getResources();
         container = (RelativeLayout) findViewById(R.id.combined_container);
         buildButtons();
+        Log.d("CA", "onCreate ended");
     }
 
 /*****
@@ -77,13 +84,16 @@ public class CombinedActivity extends AppCompatActivity {
     public void buildButtons() {
         initButtonArray();
 
-        for (int i = 0; i < viewButtons.length; i++) {
+        //TODO: Add collapse function for default buttons between active buttons
+        boolean firstVisibleFound = false;
+        for (int i = viewButtons.length - 1; i >= 0; i--) {
             String buttonName = res.getResourceName(viewButtons[i].getId());
             String replaceImageKey = buttonName + IMAGE_TYPE;
             boolean isImageSelected = prefs.getString(replaceImageKey, null) != null;
             String imageLocation = prefs.getString(replaceImageKey, (prefs.getString(getString(R.string.no_image_uri_key), null)));
             Uri imageUri = Uri.parse(imageLocation);
             if (isImageSelected) {
+                firstVisibleFound = true;
                 viewButtons[i].setOnClickListener(buttonSelectedClickListener);
                 viewButtons[i].setVisibility(View.VISIBLE);
                 viewButtons[i].setTag(DEFAULT_IMAGE);
@@ -93,6 +103,9 @@ public class CombinedActivity extends AppCompatActivity {
                 }
             }
             else {
+                if (firstVisibleFound) {
+                    viewButtons[i].setVisibility(View.VISIBLE);
+                }
                 viewButtons[i].setOnClickListener(findImageClickListener);
             }
             if (imageLocation != null) {
@@ -126,11 +139,13 @@ public class CombinedActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus && viewButtons[0].getWidth() == 0) {
+            Log.d("CA", "onWindowFocusChanged with 0 width buttons");
             redrawButtons();
         }
     }
 
     private void redrawButtons() {
+        Log.d("CA", "redrawButtons started");
         int lvi = getLastVisibleIndex();
         int dimension = getButtonDimension(getNumColumns(lvi), getNumRows(lvi));
         for (int i=0; i<=getLastVisibleIndex(); i++) {
@@ -141,6 +156,8 @@ public class CombinedActivity extends AppCompatActivity {
             params.bottomMargin=margin;
             viewButtons[i].setLayoutParams(params);
         }
+        Log.d("CA", "redrawButtons with dimension: " + dimension);
+        Log.d("CA", "redrawButtons ended");
     }
 
 /***** END: Button Management */
@@ -277,16 +294,43 @@ public class CombinedActivity extends AppCompatActivity {
         editor.commit();
     }
 
-    private void replaceButtonContent(int fromIndex, int toIndex) {
-        if (toIndex < viewButtons.length) {
-            int toIndexTag = (int)viewButtons[toIndex].getTag();
-            viewButtons[fromIndex].setOnClickListener(determineClickListener(toIndexTag));
-            viewButtons[fromIndex].setTag(toIndexTag);
-            viewButtons[fromIndex].setImageBitmap(((BitmapDrawable) viewButtons[toIndex].getDrawable()).getBitmap());
-            viewButtons[fromIndex].setVisibility(viewButtons[toIndex].getVisibility());
+    private void replaceFileNames(ImageButton toButton, ImageButton fromButton) {
+        SharedPreferences.Editor editor = prefs.edit();
+        String toAudioKey = res.getResourceName(toButton.getId()) + AUDIO_TYPE;
+        String toImageKey = res.getResourceName(toButton.getId()) + IMAGE_TYPE;
+        String fromAudioKey = res.getResourceName(fromButton.getId()) + AUDIO_TYPE;
+        String fromImageKey = res.getResourceName(fromButton.getId()) + IMAGE_TYPE;
+        String fromAudioValue = prefs.getString(fromAudioKey, null);
+        String fromImageValue = prefs.getString(fromImageKey, null);
+        if (fromAudioValue != null) {
+            editor.putString(toAudioKey, fromAudioValue);
         }
-        else if (fromIndex >= 0 && fromIndex < viewButtons.length) {
-            disableButton(viewButtons[fromIndex]);
+        else {
+            editor.remove(toAudioKey);
+        }
+        if (fromImageValue != null) {
+            editor.putString(toImageKey, fromImageValue);
+        }
+        else {
+            editor.remove(toImageKey);
+        }
+        editor.remove(fromAudioKey);
+        editor.remove(fromImageKey);
+        editor.commit();
+
+    }
+
+    private void replaceButtonContent(int toIndex, int fromIndex) {
+        if (fromIndex < viewButtons.length) {
+            int fromIndexTag = (int)viewButtons[fromIndex].getTag();
+            viewButtons[toIndex].setOnClickListener(determineClickListener(fromIndexTag));
+            viewButtons[toIndex].setTag(fromIndexTag);
+            viewButtons[toIndex].setImageBitmap(((BitmapDrawable) viewButtons[fromIndex].getDrawable()).getBitmap());
+            viewButtons[toIndex].setVisibility(viewButtons[fromIndex].getVisibility());
+            replaceFileNames(viewButtons[toIndex], viewButtons[fromIndex]);
+        }
+        else if (toIndex >= 0 && toIndex < viewButtons.length) {
+            disableButton(viewButtons[toIndex]);
         }
         setButtonEnablePlusUI((Button) findViewById(R.id.addButton), !buttonSetFull());
     }
@@ -312,6 +356,20 @@ public class CombinedActivity extends AppCompatActivity {
         }
         else {
             button.setTextColor(Color.WHITE);
+        }
+    }
+
+    private void recordingIndicator(ImageButton button, boolean on) {
+        String buttonName = res.getResourceEntryName(button.getId());
+        int id = res.getIdentifier(buttonName + "_indicator", "id", this.getPackageName());
+        ImageView indicator = (ImageView)findViewById(id);
+        if (on) {
+            indicator.setBackgroundResource(R.drawable.rec_animation);
+            AnimationDrawable background = (AnimationDrawable) indicator.getBackground();
+            background.start();
+        }
+        else {
+            indicator.setBackgroundResource(0);
         }
     }
 
@@ -442,6 +500,7 @@ public class CombinedActivity extends AppCompatActivity {
     }
 
     public void addButton(View view) {
+        Log.d("CA", "addButton started");
         for (int i=0; i<viewButtons.length; i++) {
             if (viewButtons[i].getVisibility() == View.GONE) {
                 enableButton(viewButtons[i]);
@@ -450,10 +509,12 @@ public class CombinedActivity extends AppCompatActivity {
                 break;
             }
         }
+        Log.d("CA", "addButton end");
     }
 
     private void manageRecording(ImageButton activeButton) {
         setAsCurrentButton(activeButton, AUDIO_TYPE);
+        recordingIndicator(activeButton, true);
 
         CURRENT_BUTTON_OUTPUT_FILE = this.getFilesDir() + "/" + CURRENT_BUTTON_NAME + getDateString();
         myAudioRecorder = new MediaRecorder();
@@ -502,8 +563,8 @@ public class CombinedActivity extends AppCompatActivity {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(imageStream, null, options);
-            Log.d("LIA", "imageHeight is: " + options.outHeight);
-            Log.d("LIA", "imageWidth is: " + options.outWidth);
+            Log.d("CA", "getScaledBitmap original image height is: " + options.outHeight);
+            Log.d("CA", "getScaledBitmap original image width is: " + options.outWidth);
             imageStream.close();
 
             int buttonLength = getButtonDimension(2, 1);
@@ -511,9 +572,9 @@ public class CombinedActivity extends AppCompatActivity {
             options.inJustDecodeBounds = false;
             imageStream = getContentResolver().openInputStream(uri);
             ret = BitmapFactory.decodeStream(imageStream, null, options);
-            Log.d("LIA", "imageHeight is: " + ret.getHeight());
-            Log.d("LIA", "imageWidth is: " + ret.getWidth());
-            Log.d("LIA", "image in bytes: " + ret.getByteCount());
+            Log.d("CA", "getScaledBitmap scaled image height is: " + ret.getHeight());
+            Log.d("CA", "getScaledBitmap scaled image width is: " + ret.getWidth());
+            Log.d("CA", "image in bytes: " + ret.getByteCount());
             imageStream.close();
         }
         catch (Exception e) {
@@ -623,27 +684,27 @@ public class CombinedActivity extends AppCompatActivity {
 }
 
     public int getLastVisibleIndex() {
-        for (int i = 0; i < viewButtons.length; i++) {
-            if (viewButtons[i].getVisibility() == View.GONE) {
-                return i-1;      //previous index which would have passed the visibility test
+        for (int i = viewButtons.length - 1; i >= 0; i--) {
+            if (viewButtons[i].getVisibility() != View.GONE) {
+                return i;      //previous index which would have passed the visibility test
             }
         }
-        return viewButtons.length-1;
+        return 0;
     }
 
     private int getHorizontalFreeSpace(int containerWidth, int numColumns) {
-        Log.d("SDM", "containerWidth: " + containerWidth);
-        Log.d("SDM", "numColumns: " + numColumns);
+        Log.d("CA", "containerWidth: " + containerWidth);
+        Log.d("CA", "numColumns: " + numColumns);
         int cPadding = (numColumns + 1) * margin;
-        Log.d("SDM", "cPadding: " + cPadding);
+        Log.d("CA", "cPadding: " + cPadding);
         return containerWidth - cPadding;
     }
 
     private int getVerticalFreeSpace(int containerHeight, int numRows) {
-        Log.d("SDM", "containerHeight: " + containerHeight);
-        Log.d("SDM", "numRows: " + numRows);
+        Log.d("CA", "containerHeight: " + containerHeight);
+        Log.d("CA", "numRows: " + numRows);
         int rPadding = (numRows + 1) * margin;
-        Log.d("SDM", "rPadding: " + rPadding);
+        Log.d("CA", "rPadding: " + rPadding);
         return containerHeight - rPadding;
     }
 
@@ -726,6 +787,7 @@ public class CombinedActivity extends AppCompatActivity {
             myAudioRecorder.stop();
             myAudioRecorder.release();
             myAudioRecorder = null;
+            recordingIndicator((ImageButton)v, false);
             File newRecording = new File(CURRENT_BUTTON_OUTPUT_FILE);
             if (newRecording != null) {
                 SharedPreferences.Editor editor = prefs.edit();
