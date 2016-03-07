@@ -364,7 +364,23 @@ public class CombinedActivity extends AppCompatActivity {
         int id = res.getIdentifier(buttonName + "_indicator", "id", this.getPackageName());
         ImageView indicator = (ImageView)findViewById(id);
         if (on) {
+            button.setAlpha(0.5f);
             indicator.setBackgroundResource(R.drawable.rec_animation);
+            AnimationDrawable background = (AnimationDrawable) indicator.getBackground();
+            background.start();
+        }
+        else {
+            button.setAlpha(1f);
+            indicator.setBackgroundResource(0);
+        }
+    }
+
+    private void playingIndicator(ImageButton button, boolean on) {
+        String buttonName = res.getResourceEntryName(button.getId());
+        int id = res.getIdentifier(buttonName + "_indicator", "id", this.getPackageName());
+        ImageView indicator = (ImageView)findViewById(id);
+        if (on) {
+            indicator.setBackgroundResource(R.drawable.play_animation);
             AnimationDrawable background = (AnimationDrawable) indicator.getBackground();
             background.start();
         }
@@ -660,9 +676,10 @@ public class CombinedActivity extends AppCompatActivity {
             aMediaPlayer = new MediaPlayer();
             aMediaPlayer.setDataSource(this, audioUri);
             aMediaPlayer.setOnPreparedListener(aPreparedListener);
-            aMediaPlayer.setVolume(100, 100);
+//            aMediaPlayer.setVolume(100, 100);
             aMediaPlayer.setLooping(false);
             aMediaPlayer.setOnCompletionListener(aCompletionListener);
+            playingIndicator(activeButton, true);
             setAsCurrentButton(activeButton, AUDIO_TYPE);
             aMediaPlayer.prepareAsync();
         } catch (IOException e) {
@@ -815,6 +832,7 @@ public class CombinedActivity extends AppCompatActivity {
 
     MediaPlayer.OnCompletionListener aCompletionListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer arg0) {
+            playingIndicator(CURRENT_BUTTON, false);
             CURRENT_BUTTON = null;
             aMediaPlayer.release();
             aMediaPlayer = null;
