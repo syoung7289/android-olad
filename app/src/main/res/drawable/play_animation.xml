@@ -8,9 +8,19 @@
     <item android:drawable="@drawable/play_icon2" android:duration="80" />
     <item android:drawable="@drawable/play_icon3" android:duration="80" />
     <item android:drawable="@drawable/play_icon4" android:duration="80" />
+    <item android:drawable="@drawable/play_icon5" android:duration="80" />
+    <item android:drawable="@drawable/play_icon6" android:duration="80" />
+    <item android:drawable="@drawable/play_icon7" android:duration="80" />
+    <item android:drawable="@drawable/play_icon7" android:duration="80" />
+    <item android:drawable="@drawable/play_icon6" android:duration="80" />
+    <item android:drawable="@drawable/play_icon5" android:duration="80" />
+    <item android:drawable="@drawable/play_icon4" android:duration="80" />
     <item android:drawable="@drawable/play_icon3" android:duration="80" />
     <item android:drawable="@drawable/play_icon2" android:duration="80" />
     <item android:drawable="@drawable/play_icon1" android:duration="80" />
+    <item android:drawable="@drawable/play_icon0" android:duration="80" />
+    <item android:drawable="@drawable/play_icon0" android:duration="80" />
+    <item android:drawable="@drawable/play_icon0" android:duration="80" />
     <item android:drawable="@drawable/play_icon0" android:duration="80" />
     <item android:drawable="@drawable/play_icon0" android:duration="80" />
     <item android:drawable="@drawable/play_icon0" android:duration="80" />

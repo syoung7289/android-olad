@@ -11,7 +11,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.scyoung.pandora.CombinedActivity"
     tools:showIn="@layout/activity_combined">
-    
+
     <ImageButton
         android:id="@+id/combinedButton0"
         android:layout_width="0dp"
@@ -27,8 +27,8 @@
         android:layout_marginLeft="5dp"/>
         <ImageView
             android:id="@+id/combinedButton0_indicator"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignBottom="@id/combinedButton0"
             android:layout_alignRight="@id/combinedButton0"
             android:layout_marginRight="10dp"
@@ -42,6 +42,7 @@
         android:layout_height="0dp"
         android:padding="0dp"
         android:longClickable="true"
+        android:stateListAnimator="@anim/raise"
         android:layout_toRightOf="@id/combinedButton0"
         android:layout_below="@id/addButton"
         android:layout_marginTop="5dp"
@@ -50,8 +51,8 @@
         android:adjustViewBounds="true" />
         <ImageView
             android:id="@+id/combinedButton1_indicator"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignBottom="@id/combinedButton1"
             android:layout_alignRight="@id/combinedButton1"
             android:layout_marginRight="10dp"
@@ -73,8 +74,8 @@
         android:adjustViewBounds="true" />
         <ImageView
             android:id="@+id/combinedButton2_indicator"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignBottom="@id/combinedButton2"
             android:layout_alignRight="@id/combinedButton2"
             android:layout_marginRight="10dp"
@@ -95,8 +96,8 @@
         android:adjustViewBounds="true" />
         <ImageView
             android:id="@+id/combinedButton3_indicator"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignBottom="@id/combinedButton3"
             android:layout_alignRight="@id/combinedButton3"
             android:layout_marginRight="10dp"
@@ -117,8 +118,8 @@
         android:adjustViewBounds="true" />
         <ImageView
             android:id="@+id/combinedButton4_indicator"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignBottom="@id/combinedButton4"
             android:layout_alignRight="@id/combinedButton4"
             android:layout_marginRight="10dp"
@@ -139,8 +140,8 @@
         android:adjustViewBounds="true" />
         <ImageView
             android:id="@+id/combinedButton5_indicator"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignBottom="@id/combinedButton5"
             android:layout_alignRight="@id/combinedButton5"
             android:layout_marginRight="10dp"

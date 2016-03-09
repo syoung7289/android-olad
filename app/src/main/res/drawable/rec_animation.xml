@@ -3,18 +3,27 @@
     android:id="@+id/selected"
     android:oneshot="false"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/rec_icon0" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon1" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon2" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon3" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon4" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon3" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon2" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon1" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon0" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon0" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon0" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon0" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon0" android:duration="80" />
-    <item android:drawable="@drawable/rec_icon0" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay0" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay1" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay2" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay3" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay4" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay5" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay6" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay7" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay8" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay8" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay7" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay6" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay5" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay4" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay3" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay2" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay1" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay0" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay0" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay0" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay0" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay0" android:duration="80" />
+    <item android:drawable="@drawable/rec_icon_overlay0" android:duration="80" />
 </animation-list>

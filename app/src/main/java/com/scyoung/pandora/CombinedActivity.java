@@ -6,39 +6,37 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CombinedActivity extends AppCompatActivity {
 
     ImageButton[] viewButtons = new ImageButton[6];
+    ImageView[] buttonIndicators = new ImageView[6];
     private final int SELECT_PHOTO = 1;
     private final int SELECT_AUDIO = 2;
     private final int DEFAULT = 0;
@@ -56,10 +54,9 @@ public class CombinedActivity extends AppCompatActivity {
     private int CURRENT_BUTTON_ID;
     private ImageButton CURRENT_BUTTON = null;
     private String CURRENT_BUTTON_OUTPUT_FILE = null;
+    private boolean shouldRedraw = false;
     RelativeLayout container;
     int margin = 10;
-
-    private enum ButtonState {D, DI, DS, DIS}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +68,33 @@ public class CombinedActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        shouldRedraw = false;
         prefs = getSharedPreferences(getString(R.string.preference_file), MODE_PRIVATE);
         res = getResources();
         container = (RelativeLayout) findViewById(R.id.combined_container);
+        final ViewTreeObserver vto = container.getViewTreeObserver();
+        if (vto.isAlive()) {
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+                public void onGlobalLayout() {
+                    if (shouldRedraw) {
+                        redrawButtons();
+                        shouldRedraw = false;
+                        container.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                }
+            });
+        }
         buildButtons();
         Log.d("CA", "onCreate ended");
     }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Log.d("CA", "onResume started");
+//        redrawButtons();
+//    }
 
 /*****
      * Button Management
@@ -87,6 +105,7 @@ public class CombinedActivity extends AppCompatActivity {
         //TODO: Add collapse function for default buttons between active buttons
         boolean firstVisibleFound = false;
         for (int i = viewButtons.length - 1; i >= 0; i--) {
+            viewButtons[i].setOnTouchListener(aButtonTouchEffect);
             String buttonName = res.getResourceName(viewButtons[i].getId());
             String replaceImageKey = buttonName + IMAGE_TYPE;
             boolean isImageSelected = prefs.getString(replaceImageKey, null) != null;
@@ -133,15 +152,18 @@ public class CombinedActivity extends AppCompatActivity {
         viewButtons[5] = (ImageButton) findViewById(R.id.combinedButton5);
         viewButtons[5].setVisibility(View.GONE);
         viewButtons[5].setTag(DEFAULT);
+        buttonIndicators[0] = (ImageView) findViewById(R.id.combinedButton0_indicator);
+        buttonIndicators[1] = (ImageView) findViewById(R.id.combinedButton1_indicator);
+        buttonIndicators[2] = (ImageView) findViewById(R.id.combinedButton2_indicator);
+        buttonIndicators[3] = (ImageView) findViewById(R.id.combinedButton3_indicator);
+        buttonIndicators[4] = (ImageView) findViewById(R.id.combinedButton4_indicator);
+        buttonIndicators[5] = (ImageView) findViewById(R.id.combinedButton5_indicator);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus && viewButtons[0].getWidth() == 0) {
-            Log.d("CA", "onWindowFocusChanged with 0 width buttons");
-            redrawButtons();
-        }
+        shouldRedraw = hasFocus && (viewButtons[0].getWidth() == 0);
     }
 
     private void redrawButtons() {
@@ -194,7 +216,8 @@ public class CombinedActivity extends AppCompatActivity {
             case SELECT_PHOTO:
                 if (resultCode == RESULT_OK) {
                     final Uri imageUri = returnedIntent.getData();
-                    Bitmap selectedImage = getScaledBitmap(imageUri);
+                    int maxButtonSide = getButtonDimension(2,1);
+                    Bitmap selectedImage = ImageUtil.getScaledBitmap(imageUri, maxButtonSide, this);
                     if (selectedImage != null) {
                         File internalFile = saveBitmapToInternalStorage(CURRENT_BUTTON_NAME, selectedImage);
                         if (internalFile != null) {
@@ -360,9 +383,7 @@ public class CombinedActivity extends AppCompatActivity {
     }
 
     private void recordingIndicator(ImageButton button, boolean on) {
-        String buttonName = res.getResourceEntryName(button.getId());
-        int id = res.getIdentifier(buttonName + "_indicator", "id", this.getPackageName());
-        ImageView indicator = (ImageView)findViewById(id);
+        ImageView indicator = buttonIndicators[getButtonIndex(button.getId())];
         if (on) {
             button.setAlpha(0.5f);
             indicator.setBackgroundResource(R.drawable.rec_animation);
@@ -396,50 +417,52 @@ public class CombinedActivity extends AppCompatActivity {
      */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        switch ((int) v.getTag()) {
-            case DEFAULT:
-                menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
-                menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
-                menu.add(1, R.id.record_action, 3, R.string.menu_title_record_sound);
-                menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
-                menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
-                menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
-                menu.getItem(1).setVisible(false);
-                menu.getItem(2).setVisible(false);
-                break;
-            case DEFAULT_IMAGE:
-                menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
-                menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
-                menu.add(1, R.id.record_action, 3, R.string.menu_title_record_sound);
-                menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
-                menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
-                menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
-                break;
-            case DEFAULT_AUDIO:
-                menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
-                menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
-                menu.add(1, R.id.record_action, 3, R.string.menu_title_replace_recording);
-                menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
-                menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
-                menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
-                break;
-            case DEFAULT_IMAGE_AUDIO:
-                menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
-                menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
-                menu.add(1, R.id.record_action, 3, R.string.menu_title_replace_recording);
-                menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
-                menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
-                menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
-                break;
-            default:
-                break;
-        }
-        CURRENT_BUTTON_ID = v.getId();
+        if (preparedForAnotherEvent()) {
+            switch ((int) v.getTag()) {
+                case DEFAULT:
+                    menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
+                    menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
+                    menu.add(1, R.id.record_action, 3, R.string.menu_title_record_sound);
+                    menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                    menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
+                    menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
+                    menu.getItem(1).setVisible(false);
+                    menu.getItem(2).setVisible(false);
+                    break;
+                case DEFAULT_IMAGE:
+                    menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
+                    menu.add(1, R.id.sound_action, 2, R.string.menu_title_add_sound);
+                    menu.add(1, R.id.record_action, 3, R.string.menu_title_record_sound);
+                    menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                    menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
+                    menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
+                    break;
+                case DEFAULT_AUDIO:
+                    menu.add(1, R.id.image_action, 1, R.string.menu_title_add_image);
+                    menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
+                    menu.add(1, R.id.record_action, 3, R.string.menu_title_replace_recording);
+                    menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                    menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
+                    menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
+                    break;
+                case DEFAULT_IMAGE_AUDIO:
+                    menu.add(1, R.id.image_action, 1, R.string.menu_title_replace_image);
+                    menu.add(1, R.id.sound_action, 2, R.string.menu_title_replace_sound);
+                    menu.add(1, R.id.record_action, 3, R.string.menu_title_replace_recording);
+                    menu.add(1, R.id.up_vote_action, 4, R.string.menu_title_up_vote);
+                    menu.add(1, R.id.down_vote_action, 5, R.string.menu_title_down_vote);
+                    menu.add(1, R.id.remove_button_action, 6, R.string.menu_title_remove_button);
+                    break;
+                default:
+                    break;
+            }
+            CURRENT_BUTTON_ID = v.getId();
 
-        int viewButtonIndex = getButtonIndex(CURRENT_BUTTON_ID);
-        menu.getItem(4).setEnabled(viewButtonIndex < getLastVisibleIndex());    //not upper bounds
-        menu.getItem(3).setEnabled(viewButtonIndex > 0);                        //not lower bounds
-        menu.getItem(5).setEnabled(getLastVisibleIndex() > 1);                  //not lower bounds
+            int viewButtonIndex = getButtonIndex(CURRENT_BUTTON_ID);
+            menu.getItem(4).setEnabled(viewButtonIndex < getLastVisibleIndex());    //not upper bounds
+            menu.getItem(3).setEnabled(viewButtonIndex > 0);                        //not lower bounds
+            menu.getItem(5).setEnabled(getLastVisibleIndex() > 1);                  //not lower bounds
+        }
     }
 
     public boolean onContextItemSelected(MenuItem item) {
@@ -517,12 +540,14 @@ public class CombinedActivity extends AppCompatActivity {
 
     public void addButton(View view) {
         Log.d("CA", "addButton started");
-        for (int i=0; i<viewButtons.length; i++) {
-            if (viewButtons[i].getVisibility() == View.GONE) {
-                enableButton(viewButtons[i]);
-                setButtonEnablePlusUI((Button) findViewById(R.id.addButton), !buttonSetFull());
-                redrawButtons();
-                break;
+        if (preparedForAnotherEvent()) {
+            for (int i = 0; i < viewButtons.length; i++) {
+                if (viewButtons[i].getVisibility() == View.GONE) {
+                    enableButton(viewButtons[i]);
+                    setButtonEnablePlusUI((Button) findViewById(R.id.addButton), !buttonSetFull());
+                    redrawButtons();
+                    break;
+                }
             }
         }
         Log.d("CA", "addButton end");
@@ -538,6 +563,7 @@ public class CombinedActivity extends AppCompatActivity {
         myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
         myAudioRecorder.setOutputFile(CURRENT_BUTTON_OUTPUT_FILE);
+        myAudioRecorder.setMaxDuration(10000);
 
         try {
             myAudioRecorder.prepare();
@@ -570,54 +596,6 @@ public class CombinedActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return ret;
-    }
-
-    private Bitmap getScaledBitmap(Uri uri) {
-        Bitmap ret;
-        try {
-            InputStream imageStream = getContentResolver().openInputStream(uri);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(imageStream, null, options);
-            Log.d("CA", "getScaledBitmap original image height is: " + options.outHeight);
-            Log.d("CA", "getScaledBitmap original image width is: " + options.outWidth);
-            imageStream.close();
-
-            int buttonLength = getButtonDimension(2, 1);
-            options.inSampleSize = calculateInSampleSize(options, buttonLength, buttonLength);
-            options.inJustDecodeBounds = false;
-            imageStream = getContentResolver().openInputStream(uri);
-            ret = BitmapFactory.decodeStream(imageStream, null, options);
-            Log.d("CA", "getScaledBitmap scaled image height is: " + ret.getHeight());
-            Log.d("CA", "getScaledBitmap scaled image width is: " + ret.getWidth());
-            Log.d("CA", "image in bytes: " + ret.getByteCount());
-            imageStream.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            ret = null;
-        }
-        return ret;
-    }
-
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-        return inSampleSize;
     }
 
     private File saveBitmapToInternalStorage(String outputFilename, Bitmap in) {
@@ -676,7 +654,6 @@ public class CombinedActivity extends AppCompatActivity {
             aMediaPlayer = new MediaPlayer();
             aMediaPlayer.setDataSource(this, audioUri);
             aMediaPlayer.setOnPreparedListener(aPreparedListener);
-//            aMediaPlayer.setVolume(100, 100);
             aMediaPlayer.setLooping(false);
             aMediaPlayer.setOnCompletionListener(aCompletionListener);
             playingIndicator(activeButton, true);
@@ -787,31 +764,37 @@ public class CombinedActivity extends AppCompatActivity {
     ImageButton.OnClickListener findImageClickListener = new ImageButton.OnClickListener() {
         @Override
         public void onClick(View v) {
-            findImage(v);
+            if (preparedForAnotherEvent()) {
+                findImage(v);
+            }
         }
     };
 
     ImageButton.OnClickListener buttonSelectedClickListener = new ImageButton.OnClickListener() {
         @Override
         public void onClick(View v) {
-            buttonSelected(v);
+            if (preparedForAnotherEvent()) {
+                buttonSelected(v);
+            }
         }
     };
 
     ImageButton.OnClickListener recordingCompleteListener = new ImageButton.OnClickListener() {
         @Override
         public void onClick(View v) {
-            myAudioRecorder.stop();
-            myAudioRecorder.release();
-            myAudioRecorder = null;
-            recordingIndicator((ImageButton)v, false);
-            File newRecording = new File(CURRENT_BUTTON_OUTPUT_FILE);
-            if (newRecording != null) {
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString(CURRENT_BUTTON_ABSOLUTE_NAME, newRecording.toString());
-                editor.commit();
-                addButtonAttribute(CURRENT_BUTTON, SELECT_AUDIO);
-                CURRENT_BUTTON.setOnClickListener(buttonSelectedClickListener);
+            if (myAudioRecorder != null) {
+                myAudioRecorder.stop();
+                myAudioRecorder.release();
+                myAudioRecorder = null;
+                recordingIndicator((ImageButton) v, false);
+                File newRecording = new File(CURRENT_BUTTON_OUTPUT_FILE);
+                if (newRecording != null) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(CURRENT_BUTTON_ABSOLUTE_NAME, newRecording.toString());
+                    editor.commit();
+                    addButtonAttribute(CURRENT_BUTTON, SELECT_AUDIO);
+                    CURRENT_BUTTON.setOnClickListener(buttonSelectedClickListener);
+                }
             }
         }
     };
@@ -833,11 +816,66 @@ public class CombinedActivity extends AppCompatActivity {
     MediaPlayer.OnCompletionListener aCompletionListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer arg0) {
             playingIndicator(CURRENT_BUTTON, false);
-            CURRENT_BUTTON = null;
+            if (aMediaPlayer != null) {
+                CURRENT_BUTTON = null;
+                aMediaPlayer.release();
+                aMediaPlayer = null;
+            }
+        }
+    };
+
+    Button.OnTouchListener aButtonTouchEffect = new Button.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    ((ImageView)v).setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
+//                    params.width = params.width - 10;
+//                    params.height = params.width - 10;
+//                    params.rightMargin = params.rightMargin + 5;
+//                    params.bottomMargin = params.bottomMargin + 5;
+//                    params.leftMargin = params.leftMargin + 5;
+//                    params.topMargin = params.topMargin + 5;
+//                    v.setLayoutParams(params);
+                    v.invalidate();
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    ((ImageView)v).clearColorFilter();
+//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
+//                    params.width = params.width + 10;
+//                    params.height = params.width + 10;
+//                    params.rightMargin = params.rightMargin - 5;
+//                    params.bottomMargin = params.bottomMargin - 5;
+//                    params.leftMargin = params.leftMargin - 5;
+//                    params.topMargin = params.topMargin - 5;
+//                    v.setLayoutParams(params);
+                    v.invalidate();
+                    break;
+                }
+            }
+            return false;
+        }
+    };
+
+    public boolean preparedForAnotherEvent() {
+        for (int i=0; i<buttonIndicators.length; i++) {
+            viewButtons[i].setAlpha(1f);
+            viewButtons[i].setOnClickListener(determineClickListener((int)viewButtons[i].getTag()));
+            buttonIndicators[i].setBackgroundResource(0);
+        }
+        if (myAudioRecorder != null) {
+            myAudioRecorder.stop();
+            myAudioRecorder.release();
+            myAudioRecorder = null;
+        }
+        if (aMediaPlayer != null) {
             aMediaPlayer.release();
             aMediaPlayer = null;
         }
-    };
+        return true;
+    }
 
 /***** END: Listeners */
 

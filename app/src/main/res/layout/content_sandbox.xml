@@ -4,19 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.scyoung.pandora.SandboxActivity"
     tools:showIn="@layout/activity_sandbox">
+
+    <ImageView
+        android:id="@+id/image_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:scaleType="centerCrop"
+        android:cropToPadding="true"
+        android:adjustViewBounds="true" />
+
 
     <Button
         android:id="@+id/sandbox_showCombined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:padding="20dp"
+        android:background="@drawable/sandbox_button"
         android:text="@string/title_activity_combined"
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="openCombined"/>
@@ -25,30 +36,34 @@
         android:id="@+id/sandbox_flushPreferences"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:padding="20dp"
+        android:background="@drawable/sandbox_button"
         android:text="@string/title_activity_flush_preferences"
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="flushPreferences"
         android:layout_below="@id/sandbox_showCombined" />
-    <Button
-        android:id="@+id/sandbox_findImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/button_find_image"
-        android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="findImage"
-        android:layout_below="@id/sandbox_flushPreferences"  />
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_findImage"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/button_find_image"-->
+        <!--android:textAppearance="@style/ButtonMediumFontStyle"-->
+        <!--android:onClick="findImage"-->
+        <!--android:layout_below="@id/sandbox_flushPreferences"  />-->
 
-    <Button
-        android:id="@+id/sandbox_largeImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/title_activity_large_image"
-        android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="loadLargeImage"
-        android:layout_below="@id/sandbox_findImage" />
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_largeImage"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/title_activity_large_image"-->
+        <!--android:textAppearance="@style/ButtonMediumFontStyle"-->
+        <!--android:onClick="loadLargeImage"-->
+        <!--android:layout_below="@id/sandbox_findImage" />-->
 
 
     <!--<Button-->
@@ -60,25 +75,25 @@
         <!--android:onClick="playSound"-->
         <!--android:layout_below="@id/sandbox_findImage" />-->
 
-    <Button
-        android:id="@+id/sandbox_findSound"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/find_sound"
-        android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="findSound"
-        android:layout_below="@id/sandbox_largeImage" />
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_findSound"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/find_sound"-->
+        <!--android:textAppearance="@style/ButtonMediumFontStyle"-->
+        <!--android:onClick="findSound"-->
+        <!--android:layout_below="@id/sandbox_largeImage" />-->
 
-    <Button
-        android:id="@+id/sandbox_recordSound"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/title_activity_record_sound"
-        android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="openRecordSound"
-        android:layout_below="@id/sandbox_findSound" />
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_recordSound"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/title_activity_record_sound"-->
+        <!--android:textAppearance="@style/ButtonMediumFontStyle"-->
+        <!--android:onClick="openRecordSound"-->
+        <!--android:layout_below="@id/sandbox_findSound" />-->
 
     <!--<Button-->
         <!--android:id="@+id/sandbox_passParameter"-->
@@ -98,14 +113,14 @@
         <!--android:onClick="openShowPopupPane"-->
         <!--android:layout_below="@id/sandbox_passParameter" />-->
 
-    <Button
-        android:id="@+id/sandbox_showDynamicPopup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/title_activity_show_dynamic_menu"
-        android:textAppearance="@style/ButtonMediumFontStyle"
-        android:onClick="openShowDynamicPopupPane"
-        android:layout_below="@id/sandbox_recordSound" />
+    <!--<Button-->
+        <!--android:id="@+id/sandbox_showDynamicPopup"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="10dp"-->
+        <!--android:text="@string/title_activity_show_dynamic_menu"-->
+        <!--android:textAppearance="@style/ButtonMediumFontStyle"-->
+        <!--android:onClick="openShowDynamicPopupPane"-->
+        <!--android:layout_below="@id/sandbox_recordSound" />-->
 
 </RelativeLayout>
