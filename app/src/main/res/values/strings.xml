@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pandora</string>
+    <string name="app_name"> Puzzle Me This</string>
     <string name="edit_message">Enter a Message</string>
     <string name="param_to_pass">Enter a Parameter</string>
     <string name="button_send">Send</string>
@@ -11,7 +11,7 @@
     <string name="find">Get Image</string>
     <string name="replace">[REPLACE]</string>
     <string name="play_sound">Play Sound</string>
-    <string name="title_activity_sandbox">Android Sandbox</string>
+    <string name="title_activity_sandbox">Puzzle Me This</string>
     <string name="title_activity_find_image">Find an Image</string>
     <string name="title_activity_pass_parameter">Pass Parameter</string>
     <string name="title_activity_display_parameter">Display Parameter that was passed</string>

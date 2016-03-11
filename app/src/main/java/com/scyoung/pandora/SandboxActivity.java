@@ -15,8 +15,6 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,6 +33,9 @@ public class SandboxActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sandbox);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.mipmap.puzzleme_logo_no_background_wide);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();

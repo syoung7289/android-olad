@@ -18,7 +18,6 @@
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
 
-
     <Button
         android:id="@+id/sandbox_showCombined"
         android:layout_width="match_parent"
@@ -45,6 +44,17 @@
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="flushPreferences"
         android:layout_below="@id/sandbox_showCombined" />
+
+    <ImageView
+        android:layout_width="230dp"
+        android:layout_height="80dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:padding="15dp"
+        android:scaleType="centerCrop"
+        android:cropToPadding="true"
+        android:adjustViewBounds="true"
+        android:src="@drawable/puzzlemethis"/>
     <!--<Button-->
         <!--android:id="@+id/sandbox_findImage"-->
         <!--android:layout_width="match_parent"-->
