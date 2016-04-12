@@ -34,30 +34,30 @@ public class SandboxActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.mipmap.puzzleme_logo_no_background_wide);
+        getSupportActionBar().setLogo(R.mipmap.puzzleme_logo_no_background_wider);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
         container = (ImageView)findViewById(R.id.image_container);
-        int reqDimension = Math.min(size.x, size.y);
-        Bitmap background = ImageUtil.getScaledBitmap(R.drawable.puzzle_pieces_white_corner, reqDimension, this);
-        container.setImageBitmap(background);
 
         initPreferences();
     }
 
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        super.onWindowFocusChanged(hasFocus);
-//        if (hasFocus && container == null) {
-//            container = (ImageView)findViewById(R.id.image_container);
-//            int reqDimension = Math.min(container.getWidth(), container.getHeight());
-//            Bitmap background = ImageUtil.getScaledBitmap(R.drawable.puzzle_pieces_white_corner, reqDimension, this);
-//            container.setImageBitmap(background);
-//        }
-//    }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        Bitmap background = ImageUtil.getScaledBitmap(R.drawable.puzzle_pieces_white_corner, size.x, size.y, this);
+        container.setImageBitmap(background);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        container.setImageResource(0);
+    }
+
     /**
      * Called when the user clicks the Send button
      */
@@ -75,6 +75,7 @@ public class SandboxActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LargeImageActivity.class);
         startActivity(intent);
     }
+
 
     public void openRecordSound(View view) {
         Intent intent = new Intent(this, RecordSoundActivity.class);
@@ -97,8 +98,8 @@ public class SandboxActivity extends AppCompatActivity {
     /**
      * Called when the user clicks the Send button
      */
-    public void openParameterActivityPane(View view) {
-        Intent intent = new Intent(this, PassParameterActivity.class);
+    public void openSharedTransition(View view) {
+        Intent intent = new Intent(this, SharedTransitionActivity.class);
         startActivity(intent);
     }
 
@@ -118,6 +119,10 @@ public class SandboxActivity extends AppCompatActivity {
     private void initPreferences() {
         prefs = getSharedPreferences(getString(R.string.preference_file), MODE_PRIVATE);
         SharedPreferences.Editor editor;
+
+//        editor = prefs.edit();
+//        editor.putInt("pref_num_button_default", 3);
+//        editor.commit();
 
         //write no image pic to preferences as encoded string
         if (prefs.getString(getString(R.string.no_image_key), null) == null) {
@@ -151,14 +156,15 @@ public class SandboxActivity extends AppCompatActivity {
     }
 
     public void flushPreferences(View view) {
-//        Map<String, ?> allEntries = prefs.getAll();
+        Map<String, ?> allEntries = prefs.getAll();
         SharedPreferences.Editor editor = prefs.edit();
-        editor.clear();
-//        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-//            if (entry.getKey() != getString(R.string.no_image_key) && entry.getKey() != getString(R.string.no_image_uri_key)) {
-//                editor.remove(entry.getKey());
-//            }
-//        }
+//        editor.clear();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            if (!entry.getKey().contains("pref")) {
+                deleteSharedPreferenceFile((String) entry.getValue());
+            }
+            editor.remove(entry.getKey());
+        }
         editor.commit();
         Log.d("Flushed Preferences: ", "complete");
         initPreferences();
@@ -182,5 +188,15 @@ public class SandboxActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return buttonResourceFile;
+    }
+
+    private void deleteSharedPreferenceFile(String fileName) {
+        try {
+            File imageFile = new File(fileName);
+            imageFile.delete();
+        }
+        catch (Exception e) {
+            // didn't exist keep going
+        }
     }
 }

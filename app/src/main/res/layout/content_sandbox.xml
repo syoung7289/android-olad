@@ -32,6 +32,20 @@
         android:onClick="openCombined"/>
 
     <Button
+        android:id="@+id/sandbox_sharedTransition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:padding="20dp"
+        android:background="@drawable/sandbox_button"
+        android:text="@string/title_activity_shared_transition"
+        android:textAppearance="@style/ButtonMediumFontStyle"
+        android:onClick="openSharedTransition"
+        android:layout_below="@id/sandbox_showCombined" />
+
+    <Button
         android:id="@+id/sandbox_flushPreferences"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,7 +57,7 @@
         android:text="@string/title_activity_flush_preferences"
         android:textAppearance="@style/ButtonMediumFontStyle"
         android:onClick="flushPreferences"
-        android:layout_below="@id/sandbox_showCombined" />
+        android:layout_below="@id/sandbox_sharedTransition" />
 
     <ImageView
         android:layout_width="230dp"
@@ -54,7 +68,7 @@
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true"
-        android:src="@drawable/puzzlemethis"/>
+        android:src="@drawable/puzzle_me_this_text"/>
     <!--<Button-->
         <!--android:id="@+id/sandbox_findImage"-->
         <!--android:layout_width="match_parent"-->

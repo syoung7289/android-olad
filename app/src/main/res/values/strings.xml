@@ -42,4 +42,10 @@
     <string name="title_activity_linear_layout">Linear Layout Testing</string>
     <string name="title_activity_large_image">Load Large Image</string>
     <string name="title_activity_combined">Put it all together</string>
+    <string name="title_activity_shared_transition">Shared Transition</string>
+    <string name="activity_image_trans">shared transition</string>
+    <string name="title_activity_end_transition">End Transition</string>
+    <string name="activity_image1_trans">transition1</string>
+    <string name="activity_image2_trans">transition2</string>
+    <string name="title_activity_end_transition_activity">End Transition</string>
 </resources>

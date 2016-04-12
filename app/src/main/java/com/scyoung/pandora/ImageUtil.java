@@ -14,7 +14,7 @@ import java.io.InputStream;
  */
 public class ImageUtil {
 
-    public static Bitmap getScaledBitmap(int resourceId, int maxSide, Context context) {
+    public static Bitmap getScaledBitmap(int resourceId, int reqWidth, int reqHeight, Context context) {
         Bitmap ret;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -22,7 +22,7 @@ public class ImageUtil {
         Log.d("ImageUtil", "getScaledBitmap original image height is: " + options.outHeight);
         Log.d("ImageUtil", "getScaledBitmap original image width is: " + options.outWidth);
 
-        options.inSampleSize = calculateInSampleSize(options, maxSide, maxSide);
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
         ret = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
         Log.d("ImageUtil", "getScaledBitmap scaled image height is: " + ret.getHeight());

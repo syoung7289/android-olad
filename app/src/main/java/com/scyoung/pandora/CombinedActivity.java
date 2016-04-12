@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -66,12 +67,16 @@ public class CombinedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_combined);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.mipmap.puzzleme_logo_no_background_wider);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         shouldRedraw = false;
         prefs = getSharedPreferences(getString(R.string.preference_file), MODE_PRIVATE);
         res = getResources();
         container = (RelativeLayout) findViewById(R.id.combined_container);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
         final ViewTreeObserver vto = container.getViewTreeObserver();
         if (vto.isAlive()) {
             vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -142,22 +147,28 @@ public class CombinedActivity extends AppCompatActivity {
         viewButtons[1].setTag(DEFAULT);
         viewButtons[2] = (ImageButton) findViewById(R.id.combinedButton2);
         viewButtons[2].setTag(DEFAULT);
-        viewButtons[2].setVisibility(View.GONE);
         viewButtons[3] = (ImageButton) findViewById(R.id.combinedButton3);
-        viewButtons[3].setVisibility(View.GONE);
         viewButtons[3].setTag(DEFAULT);
         viewButtons[4] = (ImageButton) findViewById(R.id.combinedButton4);
-        viewButtons[4].setVisibility(View.GONE);
         viewButtons[4].setTag(DEFAULT);
         viewButtons[5] = (ImageButton) findViewById(R.id.combinedButton5);
-        viewButtons[5].setVisibility(View.GONE);
         viewButtons[5].setTag(DEFAULT);
+        initButtonVisibility();
         buttonIndicators[0] = (ImageView) findViewById(R.id.combinedButton0_indicator);
         buttonIndicators[1] = (ImageView) findViewById(R.id.combinedButton1_indicator);
         buttonIndicators[2] = (ImageView) findViewById(R.id.combinedButton2_indicator);
         buttonIndicators[3] = (ImageView) findViewById(R.id.combinedButton3_indicator);
         buttonIndicators[4] = (ImageView) findViewById(R.id.combinedButton4_indicator);
         buttonIndicators[5] = (ImageView) findViewById(R.id.combinedButton5_indicator);
+    }
+
+    private void initButtonVisibility() {
+        int numInitialButtons = prefs.getInt("pref_num_button_default", 2);
+        for (int i=0; i<viewButtons.length; i++) {
+            if (i+1 > numInitialButtons) {
+                viewButtons[i].setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -830,27 +841,11 @@ public class CombinedActivity extends AppCompatActivity {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN: {
                     ((ImageView)v).setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
-//                    params.width = params.width - 10;
-//                    params.height = params.width - 10;
-//                    params.rightMargin = params.rightMargin + 5;
-//                    params.bottomMargin = params.bottomMargin + 5;
-//                    params.leftMargin = params.leftMargin + 5;
-//                    params.topMargin = params.topMargin + 5;
-//                    v.setLayoutParams(params);
                     v.invalidate();
                     break;
                 }
                 case MotionEvent.ACTION_UP: {
                     ((ImageView)v).clearColorFilter();
-//                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v.getLayoutParams();
-//                    params.width = params.width + 10;
-//                    params.height = params.width + 10;
-//                    params.rightMargin = params.rightMargin - 5;
-//                    params.bottomMargin = params.bottomMargin - 5;
-//                    params.leftMargin = params.leftMargin - 5;
-//                    params.topMargin = params.topMargin - 5;
-//                    v.setLayoutParams(params);
                     v.invalidate();
                     break;
                 }
