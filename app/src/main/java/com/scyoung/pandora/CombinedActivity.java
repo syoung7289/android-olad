@@ -13,7 +13,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -56,6 +58,7 @@ public class CombinedActivity extends AppCompatActivity {
     private ImageButton CURRENT_BUTTON = null;
     private String CURRENT_BUTTON_OUTPUT_FILE = null;
     private boolean shouldRedraw = false;
+    private static String SCREEN_ORIENTATION;
     RelativeLayout container;
     int margin = 10;
 
@@ -63,7 +66,8 @@ public class CombinedActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int rotation = this.getWindow().getWindowManager().getDefaultDisplay().getRotation();
-        Log.d("CA", "onCreate started: " + ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) ? "LANDSCAPE" : "PORTRAIT"));
+        SCREEN_ORIENTATION = ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) ? "LANDSCAPE" : "PORTRAIT");
+        Log.d("CA", "onCreate started: " + SCREEN_ORIENTATION);
         setContentView(R.layout.activity_combined);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -93,13 +97,6 @@ public class CombinedActivity extends AppCompatActivity {
         buildButtons();
         Log.d("CA", "onCreate ended");
     }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        Log.d("CA", "onResume started");
-//        redrawButtons();
-//    }
 
 /*****
      * Button Management
@@ -199,11 +196,29 @@ public class CombinedActivity extends AppCompatActivity {
      * Button actions
      */
     public void buttonSelected(View view) {
-        final ImageButton playingButton = (ImageButton) view;
-        final String buttonSoundLocation = prefs.getString((res.getResourceName(view.getId())+AUDIO_TYPE), null);
-        if (buttonSoundLocation != null) {
-            Uri buttonSoundUri = Uri.parse(buttonSoundLocation);
-            playAudioForButton(buttonSoundUri, playingButton);
+        // Commenting this logic while trying shared transitions
+//        final ImageButton playingButton = (ImageButton) view;
+//        final String buttonSoundLocation = prefs.getString((res.getResourceName(view.getId())+AUDIO_TYPE), null);
+//        if (buttonSoundLocation != null) {
+//            Uri buttonSoundUri = Uri.parse(buttonSoundLocation);
+//            playAudioForButton(buttonSoundUri, playingButton);
+//        }
+
+        Intent intent = new Intent(this, ShowSelectionActivity.class);
+        String picSelected = prefs.getString((res.getResourceName(view.getId())+IMAGE_TYPE), null);
+        String assocAudio = prefs.getString((res.getResourceName(view.getId())+AUDIO_TYPE), "");
+        intent.putExtra("picSelected", picSelected);
+        intent.putExtra("assocAudio", assocAudio);
+        String transition = view.getTransitionName();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this,
+                    view,
+                    transition);
+            startActivity(intent, options.toBundle());
+        }
+        else {
+            startActivity(intent);
         }
     }
 

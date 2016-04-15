@@ -135,6 +135,11 @@
             android:name=".EndTransitionActivity"
             android:label="@string/title_activity_end_transition_activity"
             android:parentActivityName=".SharedTransitionActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ShowSelectionActivity"
+            android:label="@string/title_activity_show_selection"
+            android:parentActivityName=".CombinedActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

@@ -48,4 +48,6 @@
     <string name="activity_image1_trans">transition1</string>
     <string name="activity_image2_trans">transition2</string>
     <string name="title_activity_end_transition_activity">End Transition</string>
+    <string name="title_activity_show_selection">We have a WINNER</string>
+    <string name="activity_image_selected">image selected</string>
 </resources>

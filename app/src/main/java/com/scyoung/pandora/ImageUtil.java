@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 
+import java.io.File;
 import java.io.InputStream;
 
 /**
@@ -33,6 +34,10 @@ public class ImageUtil {
     }
 
     public static Bitmap getScaledBitmap(Uri uri, int maxSide, Context context) {
+        return getScaledBitmap(uri, maxSide, maxSide, context);
+    }
+
+    public static Bitmap getScaledBitmap(Uri uri, int reqWidth, int reqHeight, Context context) {
         Bitmap ret;
         try {
             ContentResolver contentResolver = context.getContentResolver();
@@ -44,7 +49,7 @@ public class ImageUtil {
             Log.d("ImageUtil", "getScaledBitmap original image width is: " + options.outWidth);
             imageStream.close();
 
-            options.inSampleSize = calculateInSampleSize(options, maxSide, maxSide);
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
             options.inJustDecodeBounds = false;
             imageStream = contentResolver.openInputStream(uri);
             ret = BitmapFactory.decodeStream(imageStream, null, options);
@@ -78,5 +83,23 @@ public class ImageUtil {
             }
         }
         return inSampleSize;
+    }
+
+    public static Bitmap getBitmap(Uri imageUri) {
+        Bitmap ret = null;
+        try {
+            File f = new File(imageUri.getPath());
+            if (f.exists()) {
+                Log.d("decodeUri", f.getAbsolutePath());
+                ret = BitmapFactory.decodeFile(f.getAbsolutePath());
+            }
+            else {
+                Log.d("CA:decodeUri", "File not found: " + imageUri.getPath());
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 }

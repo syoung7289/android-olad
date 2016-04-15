@@ -20,6 +20,7 @@
         android:longClickable="true"
         android:layout_alignParentLeft="true"
         android:layout_below="@id/addButton"
+        android:transitionName="@string/activity_image_selected"
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true"
@@ -46,6 +47,7 @@
         android:layout_toRightOf="@id/combinedButton0"
         android:layout_below="@id/addButton"
         android:layout_marginTop="5dp"
+        android:transitionName="@string/activity_image_selected"
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
@@ -69,6 +71,7 @@
         android:layout_below="@id/addButton"
         android:layout_toRightOf="@id/combinedButton1"
         android:layout_marginTop="5dp"
+        android:transitionName="@string/activity_image_selected"
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
@@ -91,6 +94,7 @@
         android:longClickable="true"
         android:layout_marginLeft="5dp"
         android:layout_below="@id/combinedButton0"
+        android:transitionName="@string/activity_image_selected"
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
@@ -113,6 +117,7 @@
         android:longClickable="true"
         android:layout_below="@id/combinedButton0"
         android:layout_toRightOf="@id/combinedButton3"
+        android:transitionName="@string/activity_image_selected"
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
@@ -135,6 +140,7 @@
         android:longClickable="true"
         android:layout_below="@id/combinedButton0"
         android:layout_toRightOf="@id/combinedButton4"
+        android:transitionName="@string/activity_image_selected"
         android:scaleType="centerCrop"
         android:cropToPadding="true"
         android:adjustViewBounds="true" />
